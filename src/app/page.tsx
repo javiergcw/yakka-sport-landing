@@ -1,182 +1,315 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import React, { useState } from 'react';
+import {
+  AppBar,
+  Toolbar,
+  Typography,
+  Box,
+  Container,
+  TextField,
+  Button,
+  Grid,
+  Card,
+  CardContent,
+  Avatar,
+  IconButton,
+  Menu,
+  MenuItem,
+  Chip,
+  Divider,
+  useTheme,
+  useMediaQuery,
+  keyframes
+} from '@mui/material';
+import {
+  Search as SearchIcon,
+  ExpandMore as ExpandMoreIcon,
+  Star as StarIcon,
+  Home as HomeIcon
+} from '@mui/icons-material';
+import { styled } from '@mui/material/styles';
+
+// Animaciones personalizadas
+const moveUp = keyframes`
+  0% { transform: translateY(0px); }
+  50% { transform: translateY(-10px); }
+  100% { transform: translateY(0px); }
+`;
+
+const moveDown = keyframes`
+  0% { transform: translateY(0px); }
+  50% { transform: translateY(10px); }
+  100% { transform: translateY(0px); }
+`;
+
+const AnimatedAvatar = styled(Avatar)`
+  animation: ${moveUp} 3s ease-in-out infinite;
+  
+  &:nth-of-type(even) {
+    animation: ${moveDown} 3s ease-in-out infinite;
+  }
+`;
+
+const GradientText = styled(Typography)`
+  background: linear-gradient(45deg, #1976d2, #e91e63);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+`;
 
 export default function Home() {
-  const [email, setEmail] = useState('');
-  const [isSubmitted, setIsSubmitted] = useState(false);
-  const [timeLeft, setTimeLeft] = useState({
-    days: 0,
-    hours: 0,
-    minutes: 0,
-    seconds: 0
-  });
+  const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down('md'));
+  const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
 
-  // Countdown timer (example: 30 days from now)
-  useEffect(() => {
-    const targetDate = new Date();
-    targetDate.setDate(targetDate.getDate() + 30);
-
-    const timer = setInterval(() => {
-      const now = new Date().getTime();
-      const distance = targetDate.getTime() - now;
-
-      if (distance > 0) {
-        setTimeLeft({
-          days: Math.floor(distance / (1000 * 60 * 60 * 24)),
-          hours: Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60)),
-          minutes: Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60)),
-          seconds: Math.floor((distance % (1000 * 60)) / 1000)
-        });
-      }
-    }, 1000);
-
-    return () => clearInterval(timer);
-  }, []);
-
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (email) {
-      setIsSubmitted(true);
-      // Here you would typically send the email to your backend
-      console.log('Email submitted:', email);
-    }
+  const handleMenuClick = (event: React.MouseEvent<HTMLElement>) => {
+    setAnchorEl(event.currentTarget);
   };
 
+  const handleMenuClose = () => {
+    setAnchorEl(null);
+  };
+
+  // Imágenes de perfil simuladas
+  const profileImages = [
+    { src: 'https://images.unsplash.com/photo-1494790108755-2616b612b786?w=150&h=150&fit=crop&crop=face', alt: 'Mujer sonriente' },
+    { src: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&h=150&fit=crop&crop=face', alt: 'Hombre con gafas' },
+    { src: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=150&h=150&fit=crop&crop=face', alt: 'Hombre con barba' },
+    { src: 'https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=150&h=150&fit=crop&crop=face', alt: 'Mujer con hoja' },
+    { src: 'https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=150&h=150&fit=crop&crop=face', alt: 'Mujer con moño' },
+    { src: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=150&h=150&fit=crop&crop=face', alt: 'Hombre sonriente' }
+  ];
+
   return (
-    <div className="min-h-screen py-1 bg-gradient-to-br from-gray-50 via-white to-gray-100 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 flex flex-col items-center justify-center p-4 relative overflow-hidden">
-      {/* Background Animation Elements */}
-      <div className="absolute inset-0 overflow-hidden pointer-events-none">
-        <div className="absolute -top-40 -right-40 w-80 h-80 bg-green-500/10 rounded-full blur-3xl animate-pulse"></div>
-        <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-green-500/10 rounded-full blur-3xl animate-pulse delay-1000"></div>
-        <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-96 h-96 bg-green-500/5 rounded-full blur-3xl animate-pulse delay-500"></div>
-      </div>
-
-      {/* Main Content */}
-      <div className="relative z-10 text-center max-w-4xl mx-auto">
+    <Box sx={{ minHeight: '100vh', bgcolor: 'background.default' }}>
+      {/* Header */}
+      <AppBar position="static" elevation={0} sx={{ bgcolor: 'white', color: 'text.primary' }}>
+        <Toolbar sx={{ justifyContent: 'space-between' }}>
         {/* Logo */}
-        <div className="mb-8 animate-fade-in">
-          <div className="inline-flex items-center justify-center w-20 h-20 bg-green-500 rounded-full border-4 border-white shadow-2xl mb-6 animate-bounce-slow">
-            <span className="text-white text-3xl font-bold">Y</span>
-          </div>
-          <h1 className="text-4xl md:text-6xl lg:text-7xl font-black text-gray-900 dark:text-white mb-2 tracking-tight">
-            YAKKA
-          </h1>
-          <h2 className="text-2xl md:text-3xl lg:text-4xl font-bold text-gray-700 dark:text-gray-300 tracking-wide">
-            SPORT
-          </h2>
-        </div>
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+            <Box sx={{ 
+              display: 'flex', 
+              alignItems: 'center', 
+              justifyContent: 'center',
+              width: 40,
+              height: 40,
+              bgcolor: '#1976d2',
+              borderRadius: 1
+            }}>
+              <HomeIcon sx={{ color: 'white' }} />
+            </Box>
+            <Typography variant="h6" sx={{ fontWeight: 'bold', color: 'text.primary' }}>
+              felan
+            </Typography>
+          </Box>
 
-        {/* Coming Soon Text */}
-        <div className="mb-12 animate-fade-in-up delay-300">
-          <h3 className="text-2xl md:text-4xl lg:text-5xl font-bold text-gray-800 dark:text-white mb-4">
-            Something Amazing is
-            <span className="text-green-500 block mt-2 animate-pulse">Coming Soon</span>
-          </h3>
-          <p className="text-lg md:text-xl text-gray-600 dark:text-gray-400 max-w-2xl mx-auto leading-relaxed">
-            We're working hard to bring you the ultimate sports experience. 
-            Get ready for something revolutionary in the world of sports.
-          </p>
-        </div>
-
-        {/* Countdown Timer */}
-        <div className="mb-12 animate-fade-in-up delay-500">
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 max-w-2xl mx-auto">
-            {Object.entries(timeLeft).map(([unit, value]) => (
-              <div key={unit} className="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-lg border border-gray-200 dark:border-gray-700 hover:shadow-xl transition-all duration-300 hover:scale-105">
-                <div className="text-3xl md:text-4xl font-bold text-green-500 mb-2">
-                  {value.toString().padStart(2, '0')}
-                </div>
-                <div className="text-sm md:text-base font-medium text-gray-600 dark:text-gray-400 uppercase tracking-wide">
-                  {unit}
-                </div>
-              </div>
+          {/* Navegación */}
+          <Box sx={{ display: { xs: 'none', md: 'flex' }, alignItems: 'center', gap: 3 }}>
+            {['Demos', 'Cats', 'Users', 'Pages', 'Listings'].map((item) => (
+              <Box key={item} sx={{ display: 'flex', alignItems: 'center', cursor: 'pointer' }}>
+                <Typography variant="body2" sx={{ color: 'text.primary' }}>
+                  {item}
+                </Typography>
+                <ExpandMoreIcon sx={{ fontSize: 16, color: 'text.secondary' }} />
+              </Box>
             ))}
-          </div>
-        </div>
+          </Box>
 
-        {/* Email Signup */}
-        <div className="mb-12 animate-fade-in-up delay-700">
-          {!isSubmitted ? (
-            <form onSubmit={handleSubmit} className="max-w-md mx-auto">
-              <div className="flex flex-col sm:flex-row gap-3">
-                <input
-                  type="email"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  placeholder="Enter your email"
-                  className="flex-1 px-6 py-4 rounded-full border-2 border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 focus:outline-none focus:border-green-500 focus:ring-4 focus:ring-green-500/20 transition-all duration-300"
-                  required
-                />
-                <button
-                  type="submit"
-                  className="px-8 py-4 bg-green-500 hover:bg-green-600 text-white font-bold rounded-full transition-all duration-300 transform hover:scale-105 hover:shadow-lg focus:outline-none focus:ring-4 focus:ring-green-500/20"
-                >
-                  Notify Me
-                </button>
-              </div>
-            </form>
-          ) : (
-            <div className="bg-green-100 dark:bg-green-900/30 border border-green-300 dark:border-green-700 rounded-full px-8 py-4 text-green-800 dark:text-green-200 font-medium animate-fade-in">
-              ✅ Thank you! We'll notify you when we launch.
-            </div>
-          )}
-        </div>
+          {/* Lado derecho */}
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, cursor: 'pointer' }}>
+              <SearchIcon sx={{ color: 'text.secondary' }} />
+              <Typography variant="body2" sx={{ color: 'text.secondary' }}>
+                Search
+              </Typography>
+            </Box>
+            <Box sx={{ display: 'flex', alignItems: 'center', cursor: 'pointer' }}>
+              <Typography variant="body2" sx={{ color: 'text.primary' }}>
+                Freelancers
+              </Typography>
+              <ExpandMoreIcon sx={{ fontSize: 16, color: 'text.secondary' }} />
+            </Box>
+            <Button variant="text" sx={{ color: 'text.primary' }}>
+              Sign in
+            </Button>
+          </Box>
+        </Toolbar>
+      </AppBar>
 
-        {/* Social Links */}
-        <div className="animate-fade-in-up delay-1000">
-          <p className="text-gray-600 dark:text-gray-400 mb-6 font-medium">
-            Follow us for updates
-          </p>
-          <div className="flex justify-center space-x-6">
-            {[
-              { name: 'Twitter', icon: '𝕏', href: '#' },
-              { name: 'Instagram', icon: '📷', href: '#' },
-              { name: 'Facebook', icon: '📘', href: '#' },
-              { name: 'LinkedIn', icon: '💼', href: '#' }
-            ].map((social) => (
-              <a
-                key={social.name}
-                href={social.href}
-                className="w-12 h-12 bg-white dark:bg-gray-800 rounded-full flex items-center justify-center text-xl shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-110 hover:bg-green-50 dark:hover:bg-green-900/20 border border-gray-200 dark:border-gray-700"
-                aria-label={social.name}
+      {/* Contenido principal */}
+      <Container maxWidth="lg" sx={{ py: 8 }}>
+        <Box sx={{ 
+          display: 'flex', 
+          flexDirection: { xs: 'column', md: 'row' },
+          gap: 6,
+          alignItems: 'center'
+        }}>
+          {/* Columna izquierda - Texto y búsqueda */}
+          <Box sx={{ flex: 1 }}>
+            <Box sx={{ mb: 4 }}>
+              <Typography variant="h2" sx={{ 
+                fontSize: { xs: '2.5rem', md: '3.5rem', lg: '4rem' },
+                fontWeight: 'bold',
+                color: 'text.primary',
+                mb: 2
+              }}>
+                Find the right
+              </Typography>
+              <GradientText variant="h2" sx={{ 
+                fontSize: { xs: '2.5rem', md: '3.5rem', lg: '4rem' },
+                fontWeight: 'bold',
+                mb: 2
+              }}>
+                Freelance
+              </GradientText>
+              <Typography variant="h2" sx={{ 
+                fontSize: { xs: '2.5rem', md: '3.5rem', lg: '4rem' },
+                fontWeight: 'bold',
+                color: 'text.primary'
+              }}>
+                service
+              </Typography>
+            </Box>
+
+            <Typography variant="h6" sx={{ 
+              color: 'text.secondary', 
+              mb: 4,
+              fontSize: { xs: '1rem', md: '1.2rem' }
+            }}>
+              Over 3000+ expect freelancers are waiting for you
+            </Typography>
+
+            {/* Barra de búsqueda */}
+            <Box sx={{ 
+              display: 'flex', 
+              gap: 2, 
+              mb: 6,
+              flexDirection: { xs: 'column', sm: 'row' }
+            }}>
+              <TextField
+                placeholder="Service title..."
+                variant="outlined"
+                sx={{ 
+                  flex: 1,
+                  '& .MuiOutlinedInput-root': {
+                    borderRadius: 3,
+                    height: 56
+                  }
+                }}
+                InputProps={{
+                  startAdornment: <SearchIcon sx={{ color: 'text.secondary', mr: 1 }} />
+                }}
+              />
+              <TextField
+                select
+                value="All Categories"
+                variant="outlined"
+                sx={{ 
+                  minWidth: 150,
+                  '& .MuiOutlinedInput-root': {
+                    borderRadius: 3,
+                    height: 56
+                  }
+                }}
+                InputProps={{
+                  endAdornment: <ExpandMoreIcon sx={{ color: 'text.secondary' }} />
+                }}
+              />
+              <Button
+                variant="contained"
+                sx={{
+                  bgcolor: '#1976d2',
+                  borderRadius: 3,
+                  px: 4,
+                  height: 56,
+                  fontSize: '1rem',
+                  fontWeight: 'bold',
+                  '&:hover': {
+                    bgcolor: '#1565c0'
+                  }
+                }}
               >
-                {social.icon}
-              </a>
-            ))}
-          </div>
-        </div>
-      </div>
+                Search
+              </Button>
+            </Box>
 
-      {/* Custom Styles */}
-      <style jsx>{`
-        @keyframes fade-in {
-          from { opacity: 0; transform: translateY(20px); }
-          to { opacity: 1; transform: translateY(0); }
-        }
-        
-        @keyframes fade-in-up {
-          from { opacity: 0; transform: translateY(30px); }
-          to { opacity: 1; transform: translateY(0); }
-        }
-        
-        @keyframes bounce-slow {
-          0%, 100% { transform: translateY(0); }
-          50% { transform: translateY(-10px); }
-        }
-        
-        .animate-fade-in {
-          animation: fade-in 1s ease-out;
-        }
-        
-        .animate-fade-in-up {
-          animation: fade-in-up 1s ease-out;
-        }
-        
-        .animate-bounce-slow {
-          animation: bounce-slow 3s ease-in-out infinite;
-        }
-      `}</style>
-    </div>
+            {/* Estadísticas */}
+            <Box sx={{ display: 'flex', alignItems: 'center', gap: 4 }}>
+              <Box sx={{ textAlign: 'center' }}>
+                <Typography variant="h3" sx={{ 
+                  fontWeight: 'bold', 
+                  color: 'text.primary',
+                  fontSize: { xs: '2rem', md: '2.5rem' }
+                }}>
+                  50K
+                </Typography>
+                <Typography variant="body2" sx={{ color: 'text.secondary' }}>
+                  Expert Freelancers
+                </Typography>
+              </Box>
+              <Divider orientation="vertical" flexItem />
+              <Box sx={{ textAlign: 'center' }}>
+                <Typography variant="h3" sx={{ 
+                  fontWeight: 'bold', 
+                  color: 'text.primary',
+                  fontSize: { xs: '2rem', md: '2.5rem' }
+                }}>
+                  45K
+                </Typography>
+                <Typography variant="body2" sx={{ color: 'text.secondary' }}>
+                  Projects Completed
+                </Typography>
+              </Box>
+            </Box>
+          </Box>
+
+          {/* Columna derecha - Imágenes */}
+          <Box sx={{ 
+            flex: 1,
+            position: 'relative',
+            display: 'flex',
+            justifyContent: 'center',
+            alignItems: 'center',
+            minHeight: 400
+          }}>
+            {/* Estrella decorativa */}
+            <StarIcon sx={{ 
+              position: 'absolute',
+              top: 20,
+              left: 20,
+              color: '#1976d2',
+              fontSize: 24,
+              zIndex: 2
+            }} />
+
+            {/* Grid de imágenes */}
+            <Box sx={{ 
+              display: 'grid',
+              gridTemplateColumns: 'repeat(2, 1fr)',
+              gap: 2,
+              position: 'relative'
+            }}>
+              {profileImages.map((profile, index) => (
+                <AnimatedAvatar
+                  key={index}
+                  src={profile.src}
+                  alt={profile.alt}
+                  sx={{
+                    width: { xs: 80, md: 100, lg: 120 },
+                    height: { xs: 80, md: 100, lg: 120 },
+                    border: '3px solid white',
+                    boxShadow: 3,
+                    animationDelay: `${index * 0.5}s`,
+                    ...(index === 3 && { borderRadius: 2 }), // Imagen con hoja - redondeada
+                    ...(index === 5 && { borderRadius: 2 })  // Imagen de planta - redondeada
+                  }}
+                />
+              ))}
+            </Box>
+          </Box>
+        </Box>
+      </Container>
+    </Box>
   );
 }
