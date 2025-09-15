@@ -1,0 +1,141 @@
+'use client';
+import { AppBar, Box, Toolbar, Typography, Button, Container, IconButton, Drawer, List, ListItem, ListItemText } from "@mui/material";
+import { Menu as MenuIcon } from '@mui/icons-material';
+import Image from 'next/image';
+import { useState, useEffect } from 'react';
+import { getCurrentFlavorConfig } from '../types/favorGlobal';
+
+export default function Header() {
+    const [mobileOpen, setMobileOpen] = useState(false);
+    const [mounted, setMounted] = useState(false);
+    
+    const menuItems = ['Home', 'About Us', 'Contact Us', 'Blog'];
+    const flavorConfig = getCurrentFlavorConfig();
+
+    useEffect(() => {
+        setMounted(true);
+    }, []);
+
+    const handleDrawerToggle = () => {
+        setMobileOpen(!mobileOpen);
+    };
+
+    const drawer = (
+        <Box onClick={handleDrawerToggle} sx={{ textAlign: 'left', pt: 2 }}>
+            <List>
+                {menuItems.map((item) => (
+                    <ListItem key={item} disablePadding sx={{ px: 3 }}>
+                        <ListItemText 
+                            primary={item} 
+                            sx={{ 
+                                textAlign: 'left',
+                                '& .MuiListItemText-primary': {
+                                    fontSize: '1.1rem',
+                                    fontWeight: 500,
+                                    color: 'text.primary',
+                                    cursor: 'pointer',
+                                    '&:hover': {
+                                        color: flavorConfig.primaryColor
+                                    }
+                                }
+                            }}
+                        />
+                    </ListItem>
+                ))}
+            </List>
+        </Box>
+    );
+
+    if (!mounted) {
+        return null;
+    }
+
+    return (
+        <AppBar position="fixed" elevation={0} sx={{ 
+            bgcolor: 'white', 
+            color: 'text.primary', 
+            zIndex: 1300, 
+            py: { xs: 1, md: 2 },
+            borderBottom: '1px solid rgba(0, 0, 0, 0.1)'
+        }} >
+            <Container maxWidth="xl" sx={{ px: 0 }}>
+                <Toolbar sx={{ justifyContent: 'space-between' }}>
+                    {/* Logo a la izquierda */}
+                    <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                        <Box sx={{ 
+                            maxWidth: { xs: '120px', md: '150px' },
+                            height: '40px'
+                        }}>
+                            <Image
+                                src="/YAKKA.webp"
+                                alt="YAKKA Logo"
+                                width={150}
+                                height={40}
+                                style={{ 
+                                    width: '100%',
+                                    height: '100%',
+                                    objectFit: 'contain'
+                                }}
+                            />
+                        </Box>
+                    </Box>
+                    
+                    {/* Navegación desktop */}
+                    <Box sx={{ display: { xs: 'none', md: 'flex' }, alignItems: 'center', gap: 3 }}>
+                        {menuItems.map((item) => (
+                            <Typography 
+                                key={item} 
+                                variant="body1" 
+                                sx={{ 
+                                    color: 'text.primary',
+                                    cursor: 'pointer',
+                                    fontSize: '1.1rem',
+                                    fontWeight: 500,
+                                    '&:hover': {
+                                        color: flavorConfig.primaryColor
+                                    }
+                                }}
+                            >
+                                {item}
+                            </Typography>
+                        ))}
+                    </Box>
+
+                    {/* Botón hamburguesa para móvil */}
+                    <IconButton
+                        color="inherit"
+                        aria-label="open drawer"
+                        edge="start"
+                        onClick={handleDrawerToggle}
+                        sx={{ display: { md: 'none' } }}
+                    >
+                        <MenuIcon />
+                    </IconButton>
+                </Toolbar>
+            </Container>
+
+            {/* Drawer para móvil */}
+            <Drawer
+                variant="temporary"
+                anchor="right"
+                open={mobileOpen}
+                onClose={handleDrawerToggle}
+                ModalProps={{
+                    keepMounted: true, // Mejor rendimiento en móvil
+                }}
+                sx={{
+                    display: { xs: 'block', md: 'none' },
+                    zIndex: 1400,
+                    '& .MuiDrawer-paper': { 
+                        boxSizing: 'border-box', 
+                        width: 250,
+                        pt: 2,
+                        zIndex: 1400
+                    },
+                }}
+            >
+                {drawer}
+            </Drawer>
+        </AppBar>
+    );
+}
