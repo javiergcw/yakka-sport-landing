@@ -2,14 +2,15 @@
 import { AppBar, Box, Toolbar, Typography, Button, Container, IconButton, Drawer, List, ListItem, ListItemText } from "@mui/material";
 import { Menu as MenuIcon } from '@mui/icons-material';
 import Image from 'next/image';
+import Link from 'next/link';
 import { useState, useEffect } from 'react';
 import { getCurrentFlavorConfig } from '../types/favorGlobal';
+import { routes } from '../routes';
 
 export default function Header() {
     const [mobileOpen, setMobileOpen] = useState(false);
     const [mounted, setMounted] = useState(false);
     
-    const menuItems = ['Home', 'About Us', 'Contact Us', 'Blog'];
     const flavorConfig = getCurrentFlavorConfig();
 
     useEffect(() => {
@@ -23,23 +24,25 @@ export default function Header() {
     const drawer = (
         <Box onClick={handleDrawerToggle} sx={{ textAlign: 'left', pt: 2 }}>
             <List>
-                {menuItems.map((item) => (
-                    <ListItem key={item} disablePadding sx={{ px: 3 }}>
-                        <ListItemText 
-                            primary={item} 
-                            sx={{ 
-                                textAlign: 'left',
-                                '& .MuiListItemText-primary': {
-                                    fontSize: '1.1rem',
-                                    fontWeight: 500,
-                                    color: 'text.primary',
-                                    cursor: 'pointer',
-                                    '&:hover': {
-                                        color: flavorConfig.primaryColor
+                {routes.map((route) => (
+                    <ListItem key={route.name} disablePadding sx={{ px: 3 }}>
+                        <Link href={route.path} style={{ textDecoration: 'none', width: '100%' }}>
+                            <ListItemText 
+                                primary={route.label} 
+                                sx={{ 
+                                    textAlign: 'left',
+                                    '& .MuiListItemText-primary': {
+                                        fontSize: '1.1rem',
+                                        fontWeight: 500,
+                                        color: 'text.primary',
+                                        cursor: 'pointer',
+                                        '&:hover': {
+                                            color: flavorConfig.primaryColor
+                                        }
                                     }
-                                }
-                            }}
-                        />
+                                }}
+                            />
+                        </Link>
                     </ListItem>
                 ))}
             </List>
@@ -82,22 +85,23 @@ export default function Header() {
                     
                     {/* Navegación desktop */}
                     <Box sx={{ display: { xs: 'none', md: 'flex' }, alignItems: 'center', gap: 3 }}>
-                        {menuItems.map((item) => (
-                            <Typography 
-                                key={item} 
-                                variant="body1" 
-                                sx={{ 
-                                    color: 'text.primary',
-                                    cursor: 'pointer',
-                                    fontSize: '1.1rem',
-                                    fontWeight: 500,
-                                    '&:hover': {
-                                        color: flavorConfig.primaryColor
-                                    }
-                                }}
-                            >
-                                {item}
-                            </Typography>
+                        {routes.map((route) => (
+                            <Link key={route.name} href={route.path} style={{ textDecoration: 'none' }}>
+                                <Typography 
+                                    variant="body1" 
+                                    sx={{ 
+                                        color: 'text.primary',
+                                        cursor: 'pointer',
+                                        fontSize: '1.1rem',
+                                        fontWeight: 500,
+                                        '&:hover': {
+                                            color: flavorConfig.primaryColor
+                                        }
+                                    }}
+                                >
+                                    {route.label}
+                                </Typography>
+                            </Link>
                         ))}
                     </Box>
 
