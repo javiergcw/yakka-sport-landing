@@ -1,298 +1,166 @@
 'use client';
 
-import { Box, Container } from "@mui/material";
+import { Box, Container, ThemeProvider, createTheme } from "@mui/material";
 import React, { useState } from "react";
-import { Flavor } from "@/types/flavor";
 import FormComponent from "@/components/FormComponent";
-import { Swiper, SwiperSlide } from 'swiper/react';
-import { Autoplay } from 'swiper/modules';
+import { getThemeByFlavor, getImagesByFlavor, getMuiThemeByFlavor, getCurrentFlavor } from "@/utils/flavors/settings";
 import 'swiper/css';
 
 export default function Home() {
-  const [selectedFlavor, setSelectedFlavor] = useState<Flavor>(Flavor.LABOUR);
-  
-  // Arreglos de imágenes para cada columna
-  const leftColumnImages = [
-    "/Rectangle-3580-min.png",
-    "/Rectangle-3583-1-min.png",
-    "/Rectangle-3580-min.png",
-    "/Rectangle-3583-1-min.png",
-    "/Rectangle-3580-min.png",
-    "/Rectangle-3583-1-min.png"
-  ];
-  
-  const rightColumnImages = [
-    "/Rectangle-3583-1-min.png",
-    "/Rectangle-3580-min.png",
-    "/Rectangle-3583-1-min.png",
-    "/Rectangle-3580-min.png",
-    "/Rectangle-3583-1-min.png",
-    "/Rectangle-3580-min.png"
-  ];
+  const selectedFlavor = getCurrentFlavor();
+
+  // Obtener configuración del tema usando el sistema automático
+  const theme = getThemeByFlavor(selectedFlavor);
+  const images = getImagesByFlavor(selectedFlavor);
+  const muiTheme = createTheme(getMuiThemeByFlavor(selectedFlavor) || {});
+
+  // Arrays de imágenes para cada columna de la galería (usando configuración del tema)
+  const leftColumnImages = images?.gallery.slice(0, 5) || [];
+  const rightColumnImages = images?.gallery.slice(5, 10) || [];
+
+  // Función helper para renderizar las imágenes de una columna
+  const renderImageColumn = (images: string[], animationName: string, scrollDirection: 'up' | 'down' = 'up') => {
+    // Duplicamos las imágenes para el efecto de scroll infinito
+    const duplicatedImages = [...images, ...images];
+
+    // Definimos las animaciones según la dirección
+    const getKeyframes = () => {
+      if (scrollDirection === 'down') {
+        return {
+          '0%': { transform: 'translateY(-50%)' },
+          '100%': { transform: 'translateY(0)' }
+        };
+      } else {
+        return {
+          '0%': { transform: 'translateY(0)' },
+          '100%': { transform: 'translateY(-50%)' }
+        };
+      }
+    };
 
     return (
+      <Box sx={{
+        height: { xs: '100%', lg: '200%' },
+        width: { xs: '200%', lg: '100%' },
+        display: 'flex',
+        flexDirection: { xs: 'row', lg: 'column' },
+        gap: 1,
+        animation: `${animationName} 15s linear infinite`,
+        [`@keyframes ${animationName}`]: getKeyframes(),
+        [`@media (max-width: 1200px)`]: {
+          [`@keyframes ${animationName}`]: {
+            '0%': { transform: 'translateX(0)' },
+            '100%': { transform: 'translateX(-50%)' }
+          }
+        }
+      }}>
+        {duplicatedImages.map((imageSrc, index) => (
+          <Box key={index} sx={{
+            width: { xs: '120px', lg: '80%' },
+            height: { xs: '100%', lg: 'auto' },
+            minHeight: { xs: '100px', lg: '250px' },
+            borderRadius: 2,
+            overflow: 'hidden',
+            flex: { xs: '0 0 auto', lg: '0 0 auto' }
+          }}>
+            <img
+              src={imageSrc}
+              alt={`Slide ${index + 1}`}
+              style={{
+                width: '100%',
+                height: '100%',
+                objectFit: 'cover',
+                display: 'block'
+              }}
+            />
+          </Box>
+        ))}
+      </Box>
+    );
+  };
+
+  return (
+    <ThemeProvider theme={muiTheme}>
       <Box
         sx={{
-          minHeight: '100vh',
+          minHeight: { xs: '100vh', lg: '94vh' },
+          maxHeight: { xs: '100vh', lg: '94vh' },
           backgroundColor: '#ffffff',
           display: 'flex',
           alignItems: 'center',
-          justifyContent: 'center',      
+          justifyContent: 'center',
+          position: 'relative'
         }}
       >
-        <Container maxWidth="xl" sx={{ mt: { xs: 4, md: 8}}}>
-          <Box sx={{ 
-            display: 'flex', 
-            flexDirection: { xs: 'column', lg: 'row' },
-            gap: 4,
-            alignItems: 'center'
+      <Container maxWidth="xl" sx={{ mt: { xs: 4, md: 8 } }}>
+        <Box sx={{
+          display: 'flex',
+          flexDirection: { xs: 'column', lg: 'row' },
+          gap: 4,
+          alignItems: 'center'
+        }}>
+          
+          {/* En móvil: mostrar imágenes primero */}
+          <Box sx={{
+            display: { xs: 'flex', lg: 'none' },
+            gap: 0.5,
+            height: '150px',
+            overflow: 'hidden',
+            opacity: 0.4,
+            width: '100%',
+            mb: 2
           }}>
-            {/* Formulario a la izquierda */}
-            <Box sx={{ 
-              flex: { xs: 1, lg: '0 0 50%' },
-              width: '100%'
-            }}>
-              <FormComponent selectedFlavor={selectedFlavor} />
-            </Box>
-
-            {/* Dos columnas - una sube, otra baja */}
-            <Box sx={{ 
-              flex: { xs: 1, lg: '0 0 50%' },
-              display: { xs: 'none', lg: 'flex' },
-              gap: 2,
-              height: '100vh',
+            <Box sx={{
+              flex: 1,
+              height: '100%',
               overflow: 'hidden'
             }}>
-              {/* Columna izquierda - sube */}
-              <Box sx={{ 
-                flex: 1,
-                height: '100%',
-                overflow: 'hidden'
-              }}>
-                <Box sx={{
-                  height: '200%',
-                display: 'flex',
-                flexDirection: 'column',
-                  gap: 2,
-                animation: 'scrollUp 15s linear infinite',
-                '@keyframes scrollUp': {
-                  '0%': { transform: 'translateY(0)' },
-                    '100%': { transform: 'translateY(-50%)' }
-                  }
-                }}>
-                  {/* Primera serie */}
-                  <Box sx={{ 
-                    aspectRatio: '1',
-                    borderRadius: 2,
-                    overflow: 'hidden',
-                  }}>
-                    <img 
-                      src="/Rectangle-3580-min.png" 
-                      alt="Slide 1"
-                      style={{ 
-                        width: '100%', 
-                        height: '100%', 
-                        objectFit: 'contain' 
-                      }}
-                    />
-                  </Box>
-                  <Box sx={{ 
-                    aspectRatio: '1',
-                    borderRadius: 2,
-                    overflow: 'hidden',
-                  }}>
-                    <img 
-                      src="/Rectangle-3583-1-min.png" 
-                      alt="Slide 2"
-                      style={{ 
-                        width: '100%', 
-                        height: '100%', 
-                        objectFit: 'contain' 
-                      }}
-                    />
-                  </Box>
-                  <Box sx={{ 
-                    aspectRatio: '1',
-                    borderRadius: 2,
-                    overflow: 'hidden',
-                  }}>
-                    <img 
-                      src="/Rectangle-3580-min.png" 
-                      alt="Slide 3"
-                      style={{ 
-                        width: '100%', 
-                        height: '100%', 
-                        objectFit: 'contain' 
-                      }}
-                    />
-                  </Box>
-                  
-                  {/* Segunda serie duplicada */}
-                  <Box sx={{ 
-                    aspectRatio: '1',
-                    borderRadius: 2,
-                    overflow: 'hidden',
-                  }}>
-                    <img 
-                      src="/Rectangle-3580-min.png" 
-                      alt="Slide 1"
-                      style={{ 
-                        width: '100%', 
-                        height: '100%', 
-                        objectFit: 'contain' 
-                      }}
-                    />
-                  </Box>
-                  <Box sx={{ 
-                    aspectRatio: '1',
-                    borderRadius: 2,
-                    overflow: 'hidden',
-                  }}>
-                    <img 
-                      src="/Rectangle-3583-1-min.png" 
-                      alt="Slide 2"
-                      style={{ 
-                        width: '100%', 
-                        height: '100%', 
-                        objectFit: 'contain' 
-                      }}
-                    />
-                  </Box>
-                  <Box sx={{ 
-                    aspectRatio: '1',
-                    borderRadius: 2,
-                    overflow: 'hidden',
-                  }}>
-                    <img 
-                      src="/Rectangle-3580-min.png" 
-                      alt="Slide 3"
-                      style={{ 
-                        width: '100%', 
-                        height: '100%', 
-                        objectFit: 'contain' 
-                      }}
-                    />
-                  </Box>
-                </Box>
-              </Box>
-
-              {/* Columna derecha - baja */}
-              <Box sx={{ 
-                flex: 1,
-                height: '100%',
-                overflow: 'hidden'
-              }}>
-                <Box sx={{
-                  height: '200%',
-                display: 'flex',
-                flexDirection: 'column',
-                  gap: 2,
-                animation: 'scrollDown 15s linear infinite',
-                '@keyframes scrollDown': {
-                    '0%': { transform: 'translateY(-50%)' },
-                  '100%': { transform: 'translateY(0)' }
-                }
-              }}>
-                  {/* Primera serie */}
-                  <Box sx={{ 
-                    aspectRatio: '1',
-                    borderRadius: 2,
-                    overflow: 'hidden',
-                  }}>
-                    <img 
-                      src="/Rectangle-3583-1-min.png" 
-                      alt="Slide 1"
-                      style={{ 
-                        width: '100%', 
-                        height: '100%', 
-                        objectFit: 'contain' 
-                      }}
-                    />
-                  </Box>
-                  <Box sx={{ 
-                    aspectRatio: '1',
-                    borderRadius: 2,
-                    overflow: 'hidden',
-                  }}>
-                    <img 
-                      src="/Rectangle-3580-min.png" 
-                      alt="Slide 2"
-                      style={{ 
-                        width: '100%', 
-                        height: '100%', 
-                        objectFit: 'contain' 
-                      }}
-                    />
-                  </Box>
-                  <Box sx={{ 
-                    aspectRatio: '1',
-                    borderRadius: 2,
-                    overflow: 'hidden',
-                  }}>
-                    <img 
-                      src="/Rectangle-3583-1-min.png" 
-                      alt="Slide 3"
-                      style={{ 
-                        width: '100%', 
-                        height: '100%', 
-                        objectFit: 'contain' 
-                      }}
-                    />
-                  </Box>
-                  
-                  {/* Segunda serie duplicada */}
-                  <Box sx={{ 
-                    aspectRatio: '1',
-                    borderRadius: 2,
-                    overflow: 'hidden',
-                  }}>
-                    <img 
-                      src="/Rectangle-3583-1-min.png" 
-                      alt="Slide 1"
-                      style={{ 
-                        width: '100%', 
-                        height: '100%', 
-                        objectFit: 'contain' 
-                      }}
-                    />
-                  </Box>
-                  <Box sx={{ 
-                    aspectRatio: '1',
-                    borderRadius: 2,
-                    overflow: 'hidden',
-                  }}>
-                    <img 
-                      src="/Rectangle-3580-min.png" 
-                      alt="Slide 2"
-                      style={{ 
-                        width: '100%', 
-                        height: '100%', 
-                        objectFit: 'contain' 
-                      }}
-                    />
-                  </Box>
-                  <Box sx={{ 
-                    aspectRatio: '1',
-                    borderRadius: 2,
-                    overflow: 'hidden',
-                  }}>
-                    <img 
-                      src="/Rectangle-3583-1-min.png" 
-                      alt="Slide 3"
-                      style={{ 
-                        width: '100%', 
-                        height: '100%', 
-                        objectFit: 'contain' 
-                      }}
-                    />
-                  </Box>
-                </Box>
-              </Box>
+              {renderImageColumn(leftColumnImages, 'scrollUp', 'up')}
             </Box>
-
+            <Box sx={{
+              flex: 1,
+              height: '100%',
+              overflow: 'hidden'
+            }}>
+              {renderImageColumn(rightColumnImages, 'scrollDown', 'down')}
+            </Box>
           </Box>
-        </Container>
 
-     </Box>
-    );
+          {/* Formulario */}
+          <Box sx={{
+            flex: { xs: 1, lg: '0 0 50%' },
+            width: '100%'
+          }}>
+            <FormComponent selectedFlavor={selectedFlavor} />
+          </Box>
+
+          {/* En desktop: mostrar imágenes a la derecha */}
+          <Box sx={{
+            flex: { xs: 1, lg: '0 0 50%' },
+            display: { xs: 'none', lg: 'flex' },
+            gap: 0.5,
+            height: '100vh',
+            overflow: 'hidden'
+          }}>
+            <Box sx={{
+              flex: 1,
+              height: '100%',
+              overflow: 'hidden'
+            }}>
+              {renderImageColumn(leftColumnImages, 'scrollUp', 'up')}
+            </Box>
+            <Box sx={{
+              flex: 1,
+              height: '100%',
+              overflow: 'hidden'
+            }}>
+              {renderImageColumn(rightColumnImages, 'scrollDown', 'down')}
+            </Box>
+          </Box>
+
+        </Box>
+      </Container>
+      </Box>
+    </ThemeProvider>
+  );
 }

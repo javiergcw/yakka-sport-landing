@@ -91,10 +91,10 @@ export default function RootLayout({
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
         <Header />
-        <main style={{ minHeight: '100vh' }}>
+        <main >
           {children}
         </main>
-        <Footer />
+        <Footer /> 
       </body>
     </html>
   );

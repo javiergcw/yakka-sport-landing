@@ -1,7 +1,8 @@
 'use client';
 
 import { Box, Container, Typography, Grid } from "@mui/material";
-import { getCurrentFlavorConfig } from '../../types/favorGlobal';
+import { getColorsByFlavor } from '@/utils/flavors/settings';
+import { Flavor } from '@/utils/flavors/settings/model_flavor';
 
 interface BlogPost {
   id: string;
@@ -24,8 +25,12 @@ interface LatestPost {
   thumbnail: string;
 }
 
-export default function BlogOverview() {
-  const flavorConfig = getCurrentFlavorConfig();
+interface BlogOverviewProps {
+  selectedFlavor: Flavor;
+}
+
+export default function BlogOverview({ selectedFlavor }: BlogOverviewProps) {
+  const flavorColors = getColorsByFlavor(selectedFlavor);
   
   // Datos de ejemplo para los posts del blog
   const blogPosts: BlogPost[] = [
@@ -157,8 +162,8 @@ export default function BlogOverview() {
                     borderRadius: '4px',
                     border: '1px solid #e0e0e0',
                     '&:hover': {
-                      color: flavorConfig.primaryColor,
-                      backgroundColor: flavorConfig.primaryColor + '20'
+                      color: flavorColors?.primary,
+                      backgroundColor: flavorColors?.primary + '20'
                     }
                   }}
                 >
@@ -216,7 +221,7 @@ export default function BlogOverview() {
                         <Typography
                           variant="body2"
                           sx={{
-                            color: flavorConfig.primaryColor,
+                            color: flavorColors?.primary,
                             fontSize: '0.75rem',
                             fontWeight: 'bold',
                             textTransform: 'uppercase',
@@ -277,7 +282,7 @@ export default function BlogOverview() {
                       component="a"
                       href={`/blog/${post.id}`}
                       sx={{
-                        color: flavorConfig.primaryColor,
+                        color: flavorColors?.primary,
                         textDecoration: 'none',
                         fontWeight: 'bold',
                         fontSize: '0.9rem',
@@ -330,7 +335,7 @@ export default function BlogOverview() {
                         fontSize: '0.95rem',
                         cursor: 'pointer',
                         '&:hover': {
-                          color: flavorConfig.primaryColor
+                          color: flavorColors?.primary
                         }
                       }}
                     >

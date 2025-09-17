@@ -14,15 +14,19 @@ import {
   Grid
 } from '@mui/material';
 import { Facebook, Twitter, LinkedIn } from '@mui/icons-material';
-import { CURRENT_FLAVOR, getCurrentFlavorConfig } from '@/types/favorGlobal';
-import { flavorTexts } from '@/types/flavor';
+import { getColorsByFlavor, getContentByFlavor } from '@/utils/flavors/settings';
+import { Flavor } from '@/utils/flavors/settings/model_flavor';
 
-export default function ContactUs() {
+interface ContactUsProps {
+  selectedFlavor: Flavor;
+}
+
+export default function ContactUs({ selectedFlavor }: ContactUsProps) {
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('md'));
   
-  const colors = getCurrentFlavorConfig();
-  const texts = flavorTexts[CURRENT_FLAVOR];
+  const colors = getColorsByFlavor(selectedFlavor);
+  const content = getContentByFlavor(selectedFlavor);
 
 
   const [formData, setFormData] = useState({
@@ -70,12 +74,12 @@ export default function ContactUs() {
              sx={{
                fontWeight: 'bold',
                mb: { xs: 1.5, md: 2 },
-               color: colors.textColor,
+               color: colors?.text.primary,
                lineHeight: 1.2,
                fontSize: { xs: '1.5rem', md: '2.5rem' },
              }}
            >
-            {texts.contactTitle}
+            {content?.contact.title}
           </Typography>
           
           <Typography
@@ -83,14 +87,14 @@ export default function ContactUs() {
             sx={{
               maxWidth: { xs: '100%', md: '600px' },
               mx: 'auto',
-              color: colors.textColor,
+              color: colors?.text.primary,
               lineHeight: 1.6,
               opacity: 0.8,
               fontSize: { xs: '0.875rem', md: '1.25rem' },
               px: { xs: 1, md: 0 },
             }}
           >
-            {texts.contactSubtitle}
+            {content?.contact.description}
           </Typography>
         </Box>
 
@@ -118,17 +122,17 @@ export default function ContactUs() {
                <Typography variant="h6" sx={{ 
                  fontWeight: 'medium', 
                  mb: 1, 
-                 color: colors.textColor,
+                 color: colors?.text.primary,
                  fontSize: { xs: '1rem', sm: '1.25rem' }
                }}>
-                 {texts.contactEmailLabel}
+                 Email
                </Typography>
                <Typography variant="body2" sx={{ 
-                 color: colors.textColor, 
+                 color: colors?.text.primary, 
                  opacity: 0.8,
                  fontSize: { xs: '0.8rem', sm: '0.875rem' }
                }}>
-                 {texts.contactEmail}
+                 {content?.contact.email}
                </Typography>
              </CardContent>
           </Card>
@@ -147,17 +151,17 @@ export default function ContactUs() {
                <Typography variant="h6" sx={{ 
                  fontWeight: 'medium', 
                  mb: 1, 
-                 color: colors.textColor,
+                 color: colors?.text.primary,
                  fontSize: { xs: '1rem', sm: '1.25rem' }
                }}>
-                 {texts.contactPhoneLabel}
+                 Phone
                </Typography>
                <Typography variant="body2" sx={{ 
-                 color: colors.textColor, 
+                 color: colors?.text.primary, 
                  opacity: 0.8,
                  fontSize: { xs: '0.8rem', sm: '0.875rem' }
                }}>
-                 {texts.contactPhone}
+                 {content?.contact.phone}
                </Typography>
              </CardContent>
           </Card>
@@ -175,11 +179,11 @@ export default function ContactUs() {
              <CardContent sx={{ textAlign: 'center', p: { xs: 2, sm: 3 } }}>
                <Typography variant="h6" sx={{ 
                  fontWeight: 'medium', 
-                 color: colors.textColor,
+                 color: colors?.text.primary,
                  fontSize: { xs: '1rem', sm: '1.25rem' },
                  mb: { xs: 1.5, sm: 2 }
                }}>
-                 {texts.contactSocialLabel}
+                 Social Media
                </Typography>
                <Box sx={{ display: 'flex', justifyContent: 'center', gap: { xs: 1.5, sm: 2 } }}>
                 <Box
@@ -187,14 +191,14 @@ export default function ContactUs() {
                     width: { xs: 28, sm: 32 },
                     height: { xs: 28, sm: 32 },
                     borderRadius: 1,
-                    backgroundColor: colors.primaryColor,
+                    backgroundColor: colors?.primary,
                     display: 'flex',
                     alignItems: 'center',
                     justifyContent: 'center',
                     cursor: 'pointer',
                     transition: 'all 0.3s ease',
                     '&:hover': {
-                      backgroundColor: colors.secondaryColor,
+                      backgroundColor: colors?.secondary,
                       transform: 'scale(1.1)',
                     },
                   }}
@@ -207,14 +211,14 @@ export default function ContactUs() {
                     width: { xs: 28, sm: 32 },
                     height: { xs: 28, sm: 32 },
                     borderRadius: 1,
-                    backgroundColor: colors.primaryColor,
+                    backgroundColor: colors?.primary,
                     display: 'flex',
                     alignItems: 'center',
                     justifyContent: 'center',
                     cursor: 'pointer',
                     transition: 'all 0.3s ease',
                     '&:hover': {
-                      backgroundColor: colors.secondaryColor,
+                      backgroundColor: colors?.secondary,
                       transform: 'scale(1.1)',
                     },
                   }}
@@ -227,14 +231,14 @@ export default function ContactUs() {
                     width: { xs: 28, sm: 32 },
                     height: { xs: 28, sm: 32 },
                     borderRadius: 1,
-                    backgroundColor: colors.primaryColor,
+                    backgroundColor: colors?.primary,
                     display: 'flex',
                     alignItems: 'center',
                     justifyContent: 'center',
                     cursor: 'pointer',
                     transition: 'all 0.3s ease',
                     '&:hover': {
-                      backgroundColor: colors.secondaryColor,
+                      backgroundColor: colors?.secondary,
                       transform: 'scale(1.1)',
                     },
                   }}
@@ -262,24 +266,24 @@ export default function ContactUs() {
               sx={{
                 fontWeight: 'medium',
                 mb: { xs: 2, sm: 3 },
-                color: colors.textColor,
+                color: colors?.text.primary,
                 fontSize: { xs: '1.25rem', sm: '1.5rem', md: '1.75rem' },
               }}
             >
-              {texts.contactAddressLabel}
+              Address
             </Typography>
             
             <Typography
               variant="body1"
               sx={{
                 mb: { xs: 2, sm: 3 },
-                color: colors.textColor,
+                color: colors?.text.primary,
                 opacity: 0.8,
                 lineHeight: 1.6,
                 fontSize: { xs: '0.875rem', sm: '1rem' },
               }}
             >
-              {texts.contactAddress}
+              {content?.contact.address}
             </Typography>
 
             {/* Google Maps Component */}
@@ -294,9 +298,9 @@ export default function ContactUs() {
             >
               <iframe
                 loading="lazy"
-                src={`https://maps.google.com/maps?q=${encodeURIComponent(texts.contactAddress)}&t=m&z=15&output=embed&iwloc=near`}
-                title={texts.contactAddress}
-                aria-label={texts.contactAddress}
+                src={`https://maps.google.com/maps?q=${encodeURIComponent(content?.contact.address || 'Sydney, Australia')}&t=m&z=15&output=embed&iwloc=near`}
+                title={content?.contact.address || 'Sydney, Australia'}
+                aria-label={content?.contact.address || 'Sydney, Australia'}
                 style={{
                   width: '100%',
                   height: '100%',
@@ -313,11 +317,11 @@ export default function ContactUs() {
               sx={{
                 fontWeight: 'medium',
                 mb: { xs: 2, sm: 3 },
-                color: colors.textColor,
+                color: colors?.text.primary,
                 fontSize: { xs: '1.25rem', sm: '1.5rem', md: '1.75rem' },
               }}
             >
-              {texts.contactFormTitle}
+              Send us a Message
             </Typography>
 
             <Box 
@@ -332,8 +336,8 @@ export default function ContactUs() {
             >
               <Grid container spacing={{ xs: 2, sm: 3 }}>
                 <Grid size={12}>
-                  <Typography variant="body2" sx={{ mb: 1, color: colors.textColor, fontWeight: 'medium' }}>
-                    {texts.contactFormName}
+                  <Typography variant="body2" sx={{ mb: 1, color: colors?.text.primary, fontWeight: 'medium' }}>
+                    Name
                   </Typography>
                   <TextField
                     fullWidth
@@ -352,8 +356,8 @@ export default function ContactUs() {
                 </Grid>
                 
                 <Grid size={12}>
-                  <Typography variant="body2" sx={{ mb: 1, color: colors.textColor, fontWeight: 'medium' }}>
-                    {texts.contactFormEmail}
+                  <Typography variant="body2" sx={{ mb: 1, color: colors?.text.primary, fontWeight: 'medium' }}>
+                    Email
                   </Typography>
                   <TextField
                     fullWidth
@@ -373,8 +377,8 @@ export default function ContactUs() {
                 </Grid>
                 
                 <Grid size={12}>
-                  <Typography variant="body2" sx={{ mb: 1, color: colors.textColor, fontWeight: 'medium' }}>
-                    {texts.contactFormSubject}
+                  <Typography variant="body2" sx={{ mb: 1, color: colors?.text.primary, fontWeight: 'medium' }}>
+                    Subject
                   </Typography>
                   <TextField
                     fullWidth
@@ -393,8 +397,8 @@ export default function ContactUs() {
                 </Grid>
                 
                 <Grid size={12}>
-                  <Typography variant="body2" sx={{ mb: 1, color: colors.textColor, fontWeight: 'medium' }}>
-                    {texts.contactFormMessage}
+                  <Typography variant="body2" sx={{ mb: 1, color: colors?.text.primary, fontWeight: 'medium' }}>
+                    Message
                   </Typography>
                   <TextField
                     fullWidth
@@ -423,20 +427,20 @@ export default function ContactUs() {
                       py: { xs: 1.5, sm: 2 },
                       fontSize: { xs: '1rem', sm: '1.1rem' },
                       fontWeight: 'semibold',
-                      backgroundColor: colors.primaryColor,
+                      backgroundColor: colors?.primary,
                       color: 'white',
                       borderRadius: 2,
                       boxShadow: 'none',
                       transition: 'all 0.3s ease',
                       '&:hover': { 
-                        backgroundColor: colors.primaryColor + 'FF',
+                        backgroundColor: colors?.primary + 'FF',
                         color: 'white',
                         transform: 'translateY(-2px)',
                         boxShadow: '0 4px 8px rgba(0,0,0,0.1)',
                       },
                     }}
                   >
-                    {texts.contactFormSubmit}
+                    Send Message
                   </Button>
                 </Grid>
               </Grid>

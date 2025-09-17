@@ -1,7 +1,8 @@
-'use client';
-
 import BlogOverview from '@/components/blog/BlogOverview';
+import { getCurrentFlavor } from '@/utils/flavors/settings';
 
 export default function BlogPage() {
-  return <BlogOverview />;
+  const selectedFlavor = getCurrentFlavor();
+
+  return <BlogOverview selectedFlavor={selectedFlavor} />;
 }

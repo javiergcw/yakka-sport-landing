@@ -4,20 +4,23 @@ import React from 'react';
 import { 
   Box, 
   Typography, 
-  Button, 
   Container,
   useTheme,
   useMediaQuery
 } from '@mui/material';
-import { CURRENT_FLAVOR, getCurrentFlavorConfig } from '@/types/favorGlobal';
-import { flavorTexts } from '@/types/flavor';
+import { getColorsByFlavor, getContentByFlavor } from '@/utils/flavors/settings';
+import { Flavor } from '@/utils/flavors/settings/model_flavor';
 
-export default function Banner() {
+interface BannerProps {
+  selectedFlavor: Flavor;
+}
+
+export default function Banner({ selectedFlavor }: BannerProps) {
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('md'));
   
-  const colors = getCurrentFlavorConfig();
-  const texts = flavorTexts[CURRENT_FLAVOR];
+  const colors = getColorsByFlavor(selectedFlavor);
+  const content = getContentByFlavor(selectedFlavor);
 
   return (
     <Box
@@ -28,7 +31,7 @@ export default function Banner() {
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',
-        backgroundImage: `url(${texts.bannerBackgroundImage})`,
+        backgroundImage: `url('/home/welding-6252829_1280.jpg')`,
         backgroundSize: 'cover',
         backgroundPosition: 'center',
         backgroundRepeat: 'no-repeat',
@@ -80,7 +83,7 @@ export default function Banner() {
               },
             }}
           >
-            {texts.bannerTitle}
+            {content?.hero.title}
           </Typography>
           
           <Typography
@@ -98,7 +101,7 @@ export default function Banner() {
               lineHeight: { xs: 1.2, sm: 1.3 },
             }}
           >
-            {texts.bannerSubtitle}
+            {content?.hero.subtitle}
           </Typography>
         </Box>
       </Container>

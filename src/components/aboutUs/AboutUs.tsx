@@ -11,15 +11,19 @@ import {
   Card,
   CardContent
 } from '@mui/material';
-import { CURRENT_FLAVOR, getCurrentFlavorConfig } from '@/types/favorGlobal';
-import { flavorTexts } from '@/types/flavor';
+import { getColorsByFlavor, getContentByFlavor } from '@/utils/flavors/settings';
+import { Flavor } from '@/utils/flavors/settings/model_flavor';
 
-export default function AboutUs() {
+interface AboutUsProps {
+  selectedFlavor: Flavor;
+}
+
+export default function AboutUs({ selectedFlavor }: AboutUsProps) {
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('md'));
   
-  const colors = getCurrentFlavorConfig();
-  const texts = flavorTexts[CURRENT_FLAVOR];
+  const colors = getColorsByFlavor(selectedFlavor);
+  const content = getContentByFlavor(selectedFlavor);
 
   return (
     <Box
@@ -44,12 +48,12 @@ export default function AboutUs() {
               fontSize: { xs: '0.7rem', sm: '0.75rem', md: '0.875rem' },
               fontWeight: 'bold',
               letterSpacing: { xs: 1.5, sm: 2 },
-              color: colors.primaryColor,
+              color: colors?.primary,
               mb: { xs: 1.5, sm: 2 },
               display: 'block',
             }}
           >
-            {texts.aboutCompanyLabel}
+            ABOUT COMPANY
           </Typography>
           
           <Typography
@@ -58,12 +62,12 @@ export default function AboutUs() {
             sx={{
               fontWeight: 'bold',
               mb: { xs: 2, sm: 3 },
-              color: colors.textColor,
+              color: colors?.text.primary,
               lineHeight: { xs: 1.1, sm: 1.2 },
               fontSize: { xs: '1.5rem', sm: '2rem', md: '2.5rem' },
             }}
           >
-            {texts.aboutCompanyTitle}
+            {content?.about.title}
           </Typography>
           
           <Typography
@@ -71,13 +75,13 @@ export default function AboutUs() {
             sx={{
               maxWidth: { xs: '100%', sm: '600px', md: '800px' },
               mx: 'auto',
-              color: colors.textColor,
+              color: colors?.text.primary,
               lineHeight: { xs: 1.5, sm: 1.6 },
               opacity: 0.8,
               fontSize: { xs: '0.875rem', sm: '1rem', md: '1.25rem' },
             }}
           >
-            {texts.aboutCompanyDescription}
+            {content?.about.description}
           </Typography>
         </Box>
 
@@ -106,7 +110,7 @@ export default function AboutUs() {
                 sx={{
                   width: { xs: '100%', md: '50%' },
                   height: { xs: '250px', sm: '300px', md: '400px' },
-                  backgroundImage: `url(${texts.ourCultureImage})`,
+                  backgroundImage: `url('/home/machine-2691439_1280.jpg')`,
                   backgroundSize: 'cover',
                   backgroundPosition: 'center',
                   backgroundRepeat: 'no-repeat',
@@ -118,7 +122,7 @@ export default function AboutUs() {
                     left: 0,
                     right: 0,
                     bottom: 0,
-                    backgroundColor: colors.primaryColor,
+                    backgroundColor: colors?.primary,
                     opacity: 0.1,
                   }
                 }}
@@ -141,12 +145,12 @@ export default function AboutUs() {
                     fontSize: { xs: '0.7rem', sm: '0.75rem', md: '0.875rem' },
                     fontWeight: 'bold',
                     letterSpacing: { xs: 1.5, sm: 2 },
-                    color: colors.primaryColor,
+                    color: colors?.primary,
                     mb: { xs: 1.5, sm: 2 },
                     display: 'block',
                   }}
                 >
-                  {texts.ourCultureLabel}
+                  OUR CULTURE
                 </Typography>
                 
                 <Typography
@@ -155,25 +159,25 @@ export default function AboutUs() {
                   sx={{
                     fontWeight: 'bold',
                     mb: { xs: 2, sm: 3 },
-                    color: colors.textColor,
+                    color: colors?.text.primary,
                     lineHeight: { xs: 1.1, sm: 1.2 },
                     fontSize: { xs: '1.25rem', sm: '1.5rem', md: '2rem' },
                   }}
                 >
-                  {texts.ourCultureTitle}
+                  Building Excellence Together
                 </Typography>
                 
                 <Typography
                   variant={isMobile ? 'body2' : 'body1'}
                   sx={{
                     mb: { xs: 3, sm: 4 },
-                    color: colors.textColor,
+                    color: colors?.text.primary,
                     lineHeight: { xs: 1.5, sm: 1.6 },
                     opacity: 0.8,
                     fontSize: { xs: '0.875rem', sm: '1rem' },
                   }}
                 >
-                  {texts.ourCultureDescription}
+                  We believe in fostering a culture of collaboration, innovation, and continuous improvement. Our team is dedicated to delivering exceptional results while maintaining the highest standards of quality and safety.
                 </Typography>
                 
                 {/* Botón CTA */}
@@ -186,21 +190,21 @@ export default function AboutUs() {
                     py: { xs: 1, sm: 1.5 },
                     fontSize: { xs: '0.875rem', sm: '1rem' },
                     fontWeight: 'medium',
-                    borderColor: colors.textColor,
-                    color: colors.textColor,
+                    borderColor: colors?.text.primary,
+                    color: colors?.text.primary,
                     borderRadius: 2,
                     width: { xs: '100%', sm: 'auto' },
                     transition: 'all 0.3s ease',
                     '&:hover': {
-                      backgroundColor: colors.primaryColor,
-                      borderColor: colors.primaryColor,
-                      color: colors.backgroundColor,
+                      backgroundColor: colors?.primary,
+                      borderColor: colors?.primary,
+                      color: colors?.background,
                       transform: 'translateY(-2px)',
                       boxShadow: 3,
                     },
                   }}
                 >
-                  {texts.ourCultureButtonText}
+                  Learn More
                 </Button>
               </Box>
             </Box>

@@ -5,11 +5,6 @@ import {
   Typography, 
   TextField, 
   FormControl, 
-  FormLabel, 
-  RadioGroup, 
-  FormControlLabel, 
-  Radio, 
-  Paper,
   Button,
   Select,
   MenuItem,
@@ -22,7 +17,8 @@ import {
 } from "@mui/material";
 import { Close as CloseIcon } from '@mui/icons-material';
 import React, { useState } from "react";
-import { Flavor, flavorConfigs } from "@/types/flavor";
+import { Flavor } from "@/utils/flavors/settings/model_flavor";
+import { getColorsByFlavor } from "@/utils/flavors/settings";
 
 interface FormData {
   name: string;
@@ -41,6 +37,7 @@ interface FormComponentProps {
 
 export default function FormComponent({ selectedFlavor }: FormComponentProps) {
   const [currentStep, setCurrentStep] = useState(0);
+  const flavorColors = getColorsByFlavor(selectedFlavor);
   const [openModal, setOpenModal] = useState(false);
   const [customWorkerCount, setCustomWorkerCount] = useState('');
   const [formData, setFormData] = useState<FormData>({
@@ -126,102 +123,186 @@ export default function FormComponent({ selectedFlavor }: FormComponentProps) {
 
   return (
     <>
-      <Paper 
-        elevation={0} 
+      <Box 
         sx={{ 
-          p: { xs: 2, md: 4 },
-          backgroundColor: '#ffffff',
-          borderRadius: 3,
+          p: { xs: 3, md: 6 },
           width: '100%',
-          borderTop: `1px solid ${flavorConfigs[selectedFlavor].primaryColor}`,
-          borderLeft: `1px solid ${flavorConfigs[selectedFlavor].primaryColor}`,
-          borderBottom: `4px solid ${flavorConfigs[selectedFlavor].primaryColor}`,
-          borderRight: `4px solid ${flavorConfigs[selectedFlavor].primaryColor}`
+          maxWidth: '600px',
+          mx: 'auto'
         }}
       >
         {/* Header */}
-        <Box sx={{ textAlign: 'center', mb: { xs: 2, md: 3 } }}>
+        <Box sx={{ textAlign: 'center', mb: { xs: 4, md: 6 } }}>
           <Typography 
-            variant="h4" 
+            variant="h3" 
             component="h1" 
             gutterBottom
             sx={{ 
-              fontWeight: 800,
-              fontSize: { xs: '1.5rem', md: '2.125rem' }
+              fontWeight: 600,
+              fontSize: { xs: '2rem', md: '2.5rem' },
+              letterSpacing: '-0.02em',
+              color: '#1d1d1f',
+              fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Display", "Helvetica Neue", Helvetica, Arial, sans-serif',
+              lineHeight: 1.1
             }}
           >
             {steps[currentStep].title}
           </Typography>
+          <Typography 
+            variant="body1" 
+            sx={{ 
+              color: '#86868b',
+              fontSize: { xs: '1rem', md: '1.125rem' },
+              fontWeight: 400,
+              fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Text", "Helvetica Neue", Helvetica, Arial, sans-serif',
+              mt: 1
+            }}
+          >
+            {steps[currentStep].description}
+          </Typography>
         </Box>
 
-        <Box component="form" onSubmit={handleSubmit} sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+        <Box component="form" onSubmit={handleSubmit} sx={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
           {/* Paso 1: Seleccionar rol */}
           {currentStep === 0 && (
-            <FormControl component="fieldset">
-              <RadioGroup
-                value={formData.role}
-                onChange={(e) => handleInputChange('role', e.target.value)}
-                sx={{ 
-                  display: 'flex', 
-                  flexDirection: { xs: 'column', sm: 'row' }, 
-                  gap: 2,
-                  justifyContent: { xs: 'flex-start', sm: 'center' },
-                  alignItems: { xs: 'flex-start', sm: 'center' }
+            <Box sx={{ display: 'flex', flexDirection: 'column', gap: 3 }}>
+              <Box
+                onClick={() => handleInputChange('role', 'builder')}
+                sx={{
+                  p: 4,
+                  border: '1px solid #e5e5e7',
+                  borderRadius: '12px',
+                  cursor: 'pointer',
+                  transition: 'all 0.2s ease',
+                  backgroundColor: formData.role === 'builder' ? '#f5f5f7' : 'transparent',
+                  borderColor: formData.role === 'builder' ? flavorColors?.primary : '#e5e5e7',
+                  '&:hover': {
+                    backgroundColor: formData.role === 'builder' ? '#f5f5f7' : '#f9f9f9',
+                    borderColor: formData.role === 'builder' ? flavorColors?.primary : '#d1d1d6'
+                  }
                 }}
               >
-                <FormControlLabel 
-                  value="builder" 
-                  control={
-                    <Radio 
+                <Box sx={{ display: 'flex', alignItems: 'flex-start', gap: 3 }}>
+                  <Box
+                    sx={{
+                      width: 20,
+                      height: 20,
+                      borderRadius: '50%',
+                      border: '2px solid',
+                      borderColor: formData.role === 'builder' ? flavorColors?.primary : '#d1d1d6',
+                      backgroundColor: formData.role === 'builder' ? flavorColors?.primary : 'transparent',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      mt: 0.5,
+                      '&::after': formData.role === 'builder' ? {
+                        content: '""',
+                        width: 8,
+                        height: 8,
+                        borderRadius: '50%',
+                        backgroundColor: 'white'
+                      } : {}
+                    }}
+                  />
+                  <Box sx={{ flex: 1 }}>
+                    <Typography 
+                      variant="h6" 
                       sx={{ 
-                        color: flavorConfigs[selectedFlavor].primaryColor,
-                        '&.Mui-checked': {
-                          color: flavorConfigs[selectedFlavor].primaryColor,
-                        }
-                      }} 
-                    />
-                  } 
-                  label={
-                    <Box>
-                      <Typography variant="subtitle1" fontWeight="bold">
-                        Builder
-                      </Typography>
-                      <Typography variant="body2" color="text.secondary">
-                        I need to hire workers for my projects
-                      </Typography>
-                    </Box>
-                  }
-                />
-                <FormControlLabel 
-                  value="employee" 
-                  control={
-                    <Radio 
+                        fontWeight: 600,
+                        fontSize: '1.25rem',
+                        color: '#1d1d1f',
+                        fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Display", "Helvetica Neue", Helvetica, Arial, sans-serif',
+                        mb: 1
+                      }}
+                    >
+                      Builder
+                    </Typography>
+                    <Typography 
+                      variant="body1" 
                       sx={{ 
-                        color: flavorConfigs[selectedFlavor].primaryColor,
-                        '&.Mui-checked': {
-                          color: flavorConfigs[selectedFlavor].primaryColor,
-                        }
-                      }} 
-                    />
-                  } 
-                  label={
-                    <Box>
-                      <Typography variant="subtitle1" fontWeight="bold">
-                        Employee
-                      </Typography>
-                      <Typography variant="body2" color="text.secondary">
-                        I'm looking for work opportunities
-                      </Typography>
-                    </Box>
+                        color: '#86868b',
+                        fontSize: '1rem',
+                        fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Text", "Helvetica Neue", Helvetica, Arial, sans-serif',
+                        lineHeight: 1.4
+                      }}
+                    >
+                      I need to hire workers for my projects
+                    </Typography>
+                  </Box>
+                </Box>
+              </Box>
+
+              <Box
+                onClick={() => handleInputChange('role', 'employee')}
+                sx={{
+                  p: 4,
+                  border: '1px solid #e5e5e7',
+                  borderRadius: '12px',
+                  cursor: 'pointer',
+                  transition: 'all 0.2s ease',
+                  backgroundColor: formData.role === 'employee' ? '#f5f5f7' : 'transparent',
+                  borderColor: formData.role === 'employee' ? flavorColors?.primary : '#e5e5e7',
+                  '&:hover': {
+                    backgroundColor: formData.role === 'employee' ? '#f5f5f7' : '#f9f9f9',
+                    borderColor: formData.role === 'employee' ? flavorColors?.primary : '#d1d1d6'
                   }
-                />
-              </RadioGroup>
-            </FormControl>
+                }}
+              >
+                <Box sx={{ display: 'flex', alignItems: 'flex-start', gap: 3 }}>
+                  <Box
+                    sx={{
+                      width: 20,
+                      height: 20,
+                      borderRadius: '50%',
+                      border: '2px solid',
+                      borderColor: formData.role === 'employee' ? flavorColors?.primary : '#d1d1d6',
+                      backgroundColor: formData.role === 'employee' ? flavorColors?.primary : 'transparent',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      mt: 0.5,
+                      '&::after': formData.role === 'employee' ? {
+                        content: '""',
+                        width: 8,
+                        height: 8,
+                        borderRadius: '50%',
+                        backgroundColor: 'white'
+                      } : {}
+                    }}
+                  />
+                  <Box sx={{ flex: 1 }}>
+                    <Typography 
+                      variant="h6" 
+                      sx={{ 
+                        fontWeight: 600,
+                        fontSize: '1.25rem',
+                        color: '#1d1d1f',
+                        fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Display", "Helvetica Neue", Helvetica, Arial, sans-serif',
+                        mb: 1
+                      }}
+                    >
+                      Employee
+                    </Typography>
+                    <Typography 
+                      variant="body1" 
+                      sx={{ 
+                        color: '#86868b',
+                        fontSize: '1rem',
+                        fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Text", "Helvetica Neue", Helvetica, Arial, sans-serif',
+                        lineHeight: 1.4
+                      }}
+                    >
+                      I'm looking for work opportunities
+                    </Typography>
+                  </Box>
+                </Box>
+              </Box>
+            </Box>
           )}
 
           {/* Paso 2: Información de contacto */}
           {currentStep === 1 && (
-            <Box sx={{ display: 'flex', flexDirection: 'column', gap: 3 }}>
+            <Box sx={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
               <TextField
                 fullWidth
                 label="Name"
@@ -231,9 +312,33 @@ export default function FormComponent({ selectedFlavor }: FormComponentProps) {
                 variant="outlined"
                 sx={{ 
                   '& .MuiOutlinedInput-root': { 
-                    borderRadius: 3,
+                    borderRadius: '12px',
+                    height: '56px',
+                    fontSize: '1rem',
+                    fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Text", "Helvetica Neue", Helvetica, Arial, sans-serif',
+                    backgroundColor: '#f5f5f7',
+                    border: '1px solid #e5e5e7',
+                    '&:hover': {
+                      borderColor: '#d1d1d6'
+                    },
+                    '&.Mui-focused': {
+                      backgroundColor: 'white',
+                      borderColor: flavorColors?.primary,
+                      boxShadow: `0 0 0 3px ${flavorColors?.primary}20`
+                    },
                     '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
-                      borderColor: flavorConfigs[selectedFlavor].primaryColor
+                      border: 'none'
+                    },
+                    '& .MuiOutlinedInput-notchedOutline': {
+                      border: 'none'
+                    }
+                  },
+                  '& .MuiInputLabel-root': {
+                    fontSize: '1rem',
+                    fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Text", "Helvetica Neue", Helvetica, Arial, sans-serif',
+                    color: '#86868b',
+                    '&.Mui-focused': {
+                      color: flavorColors?.primary
                     }
                   }
                 }}
@@ -249,9 +354,33 @@ export default function FormComponent({ selectedFlavor }: FormComponentProps) {
                 variant="outlined"
                 sx={{ 
                   '& .MuiOutlinedInput-root': { 
-                    borderRadius: 3,
+                    borderRadius: '12px',
+                    height: '56px',
+                    fontSize: '1rem',
+                    fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Text", "Helvetica Neue", Helvetica, Arial, sans-serif',
+                    backgroundColor: '#f5f5f7',
+                    border: '1px solid #e5e5e7',
+                    '&:hover': {
+                      borderColor: '#d1d1d6'
+                    },
+                    '&.Mui-focused': {
+                      backgroundColor: 'white',
+                      borderColor: flavorColors?.primary,
+                      boxShadow: `0 0 0 3px ${flavorColors?.primary}20`
+                    },
                     '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
-                      borderColor: flavorConfigs[selectedFlavor].primaryColor
+                      border: 'none'
+                    },
+                    '& .MuiOutlinedInput-notchedOutline': {
+                      border: 'none'
+                    }
+                  },
+                  '& .MuiInputLabel-root': {
+                    fontSize: '1rem',
+                    fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Text", "Helvetica Neue", Helvetica, Arial, sans-serif',
+                    color: '#86868b',
+                    '&.Mui-focused': {
+                      color: flavorColors?.primary
                     }
                   }
                 }}
@@ -267,9 +396,33 @@ export default function FormComponent({ selectedFlavor }: FormComponentProps) {
                 variant="outlined"
                 sx={{ 
                   '& .MuiOutlinedInput-root': { 
-                    borderRadius: 3,
+                    borderRadius: '12px',
+                    height: '56px',
+                    fontSize: '1rem',
+                    fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Text", "Helvetica Neue", Helvetica, Arial, sans-serif',
+                    backgroundColor: '#f5f5f7',
+                    border: '1px solid #e5e5e7',
+                    '&:hover': {
+                      borderColor: '#d1d1d6'
+                    },
+                    '&.Mui-focused': {
+                      backgroundColor: 'white',
+                      borderColor: flavorColors?.primary,
+                      boxShadow: `0 0 0 3px ${flavorColors?.primary}20`
+                    },
                     '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
-                      borderColor: flavorConfigs[selectedFlavor].primaryColor
+                      border: 'none'
+                    },
+                    '& .MuiOutlinedInput-notchedOutline': {
+                      border: 'none'
+                    }
+                  },
+                  '& .MuiInputLabel-root': {
+                    fontSize: '1rem',
+                    fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Text", "Helvetica Neue", Helvetica, Arial, sans-serif',
+                    color: '#86868b',
+                    '&.Mui-focused': {
+                      color: flavorColors?.primary
                     }
                   }
                 }}
@@ -297,26 +450,26 @@ export default function FormComponent({ selectedFlavor }: FormComponentProps) {
                         sx={{
                           width: '100%',
                           height: 40,
-                          borderTop: `1px solid ${flavorConfigs[selectedFlavor].primaryColor}`,
-                          borderLeft: `1px solid ${flavorConfigs[selectedFlavor].primaryColor}`,
-                          borderBottom: `4px solid ${flavorConfigs[selectedFlavor].primaryColor}`,
-                          borderRight: `4px solid ${flavorConfigs[selectedFlavor].primaryColor}`,
+                          borderTop: `1px solid ${flavorColors?.primary}`,
+                          borderLeft: `1px solid ${flavorColors?.primary}`,
+                          borderBottom: `4px solid ${flavorColors?.primary}`,
+                          borderRight: `4px solid ${flavorColors?.primary}`,
                           borderRadius: 3,
                           display: 'flex',
                           alignItems: 'center',
                           justifyContent: 'center',
                           cursor: 'pointer',
                           backgroundColor: formData.workerCount === number.toString() 
-                            ? flavorConfigs[selectedFlavor].primaryColor 
+                            ? flavorColors?.primary 
                             : '#ffffff',
                           color: formData.workerCount === number.toString() 
                             ? '#ffffff' 
-                            : flavorConfigs[selectedFlavor].primaryColor,
+                            : flavorColors?.primary,
                           transition: 'all 0.3s ease',
                           '&:hover': {
                             backgroundColor: formData.workerCount === number.toString() 
-                              ? flavorConfigs[selectedFlavor].primaryColor 
-                              : `${flavorConfigs[selectedFlavor].primaryColor}20`
+                              ? flavorColors?.primary 
+                              : `${flavorColors?.primary}20`
                           }
                         }}
                       >
@@ -330,26 +483,26 @@ export default function FormComponent({ selectedFlavor }: FormComponentProps) {
                       sx={{
                         width: '100%',
                         height: 40,
-                        borderTop: `1px solid ${flavorConfigs[selectedFlavor].primaryColor}`,
-                        borderLeft: `1px solid ${flavorConfigs[selectedFlavor].primaryColor}`,
-                        borderBottom: `4px solid ${flavorConfigs[selectedFlavor].primaryColor}`,
-                        borderRight: `4px solid ${flavorConfigs[selectedFlavor].primaryColor}`,
+                        borderTop: `1px solid ${flavorColors?.primary}`,
+                        borderLeft: `1px solid ${flavorColors?.primary}`,
+                        borderBottom: `4px solid ${flavorColors?.primary}`,
+                        borderRight: `4px solid ${flavorColors?.primary}`,
                         borderRadius: 3,
                         display: 'flex',
                         alignItems: 'center',
                         justifyContent: 'center',
                         cursor: 'pointer',
                         backgroundColor: (formData.workerCount === 'more' || (formData.workerCount && !['1', '2', '3', '4', '5'].includes(formData.workerCount)))
-                          ? flavorConfigs[selectedFlavor].primaryColor 
+                          ? flavorColors?.primary 
                           : '#ffffff',
                         color: (formData.workerCount === 'more' || (formData.workerCount && !['1', '2', '3', '4', '5'].includes(formData.workerCount)))
                           ? '#ffffff' 
-                          : flavorConfigs[selectedFlavor].primaryColor,
+                          : flavorColors?.primary,
                         transition: 'all 0.3s ease',
                         '&:hover': {
                           backgroundColor: (formData.workerCount === 'more' || (formData.workerCount && !['1', '2', '3', '4', '5'].includes(formData.workerCount)))
-                            ? flavorConfigs[selectedFlavor].primaryColor 
-                            : `${flavorConfigs[selectedFlavor].primaryColor}20`
+                            ? flavorColors?.primary 
+                            : `${flavorColors?.primary}20`
                         }
                       }}
                     >
@@ -380,7 +533,7 @@ export default function FormComponent({ selectedFlavor }: FormComponentProps) {
                           borderRadius: 3 
                         },
                         '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
-                          borderColor: flavorConfigs[selectedFlavor].primaryColor
+                          borderColor: flavorColors?.primary
                         }
                       }}
                     >
@@ -419,7 +572,7 @@ export default function FormComponent({ selectedFlavor }: FormComponentProps) {
                     '& .MuiOutlinedInput-root': { 
                       borderRadius: 3,
                       '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
-                        borderColor: flavorConfigs[selectedFlavor].primaryColor
+                        borderColor: flavorColors?.primary
                       }
                     }
                   }}
@@ -435,22 +588,32 @@ export default function FormComponent({ selectedFlavor }: FormComponentProps) {
             display: 'flex', 
             flexDirection: 'row',
             justifyContent: 'space-between', 
-            gap: 2,
-            mt: { xs: 2, md: 3 }
+            gap: 3,
+            mt: { xs: 4, md: 6 }
           }}>
             <Button
               onClick={handleBack}
               disabled={currentStep === 0}
               variant="outlined"
               sx={{ 
-                borderRadius: 3,
-                borderColor: flavorConfigs[selectedFlavor].primaryColor,
-                color: flavorConfigs[selectedFlavor].primaryColor,
+                borderRadius: '12px',
+                height: '48px',
+                px: 4,
+                border: '1px solid #e5e5e7',
+                color: currentStep === 0 ? '#86868b' : '#1d1d1f',
+                backgroundColor: 'transparent',
                 boxShadow: 'none',
                 textTransform: 'none',
+                fontSize: '1rem',
+                fontWeight: 500,
+                fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Text", "Helvetica Neue", Helvetica, Arial, sans-serif',
                 '&:hover': {
-                  borderColor: flavorConfigs[selectedFlavor].buttonHoverColor,
-                  backgroundColor: `${flavorConfigs[selectedFlavor].primaryColor}10`
+                  backgroundColor: currentStep === 0 ? 'transparent' : '#f5f5f7',
+                  borderColor: currentStep === 0 ? '#e5e5e7' : '#d1d1d6'
+                },
+                '&:disabled': {
+                  color: '#86868b',
+                  borderColor: '#e5e5e7'
                 }
               }}
             >
@@ -463,13 +626,21 @@ export default function FormComponent({ selectedFlavor }: FormComponentProps) {
                 variant="contained"
                 size="large"
                 sx={{ 
-                  py: 1.5,
-                  borderRadius: 3,
-                  backgroundColor: flavorConfigs[selectedFlavor].primaryColor,
+                  height: '48px',
+                  px: 4,
+                  borderRadius: '12px',
+                  backgroundColor: flavorColors?.primary,
                   boxShadow: 'none',
                   textTransform: 'none',
+                  fontSize: '1rem',
+                  fontWeight: 500,
+                  fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Text", "Helvetica Neue", Helvetica, Arial, sans-serif',
                   '&:hover': {
-                    backgroundColor: flavorConfigs[selectedFlavor].buttonHoverColor
+                    backgroundColor: flavorColors?.button.primaryHover,
+                    boxShadow: 'none'
+                  },
+                  '&:active': {
+                    backgroundColor: flavorColors?.button.primaryHover
                   }
                 }}
               >
@@ -487,13 +658,25 @@ export default function FormComponent({ selectedFlavor }: FormComponentProps) {
                   (currentStep === 2 && formData.role === 'employee' && !formData.profession)
                 }
                 sx={{ 
-                  py: 1.5,
-                  borderRadius: 3,
-                  backgroundColor: flavorConfigs[selectedFlavor].primaryColor,
+                  height: '48px',
+                  px: 4,
+                  borderRadius: '12px',
+                  backgroundColor: flavorColors?.primary,
                   boxShadow: 'none',
                   textTransform: 'none',
+                  fontSize: '1rem',
+                  fontWeight: 500,
+                  fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Text", "Helvetica Neue", Helvetica, Arial, sans-serif',
                   '&:hover': {
-                    backgroundColor: flavorConfigs[selectedFlavor].buttonHoverColor
+                    backgroundColor: flavorColors?.button.primaryHover,
+                    boxShadow: 'none'
+                  },
+                  '&:active': {
+                    backgroundColor: flavorColors?.button.primaryHover
+                  },
+                  '&:disabled': {
+                    backgroundColor: '#d1d1d6',
+                    color: '#86868b'
                   }
                 }}
               >
@@ -502,7 +685,7 @@ export default function FormComponent({ selectedFlavor }: FormComponentProps) {
             )}
           </Box>
         </Box>
-      </Paper>
+      </Box>
 
       {/* Modal para cantidad personalizada */}
       <Dialog 
@@ -519,10 +702,10 @@ export default function FormComponent({ selectedFlavor }: FormComponentProps) {
         PaperProps={{
           sx: {
             borderRadius: 3,
-            borderTop: `1px solid ${flavorConfigs[selectedFlavor].primaryColor}`,
-            borderLeft: `1px solid ${flavorConfigs[selectedFlavor].primaryColor}`,
-            borderBottom: `4px solid ${flavorConfigs[selectedFlavor].primaryColor}`,
-            borderRight: `4px solid ${flavorConfigs[selectedFlavor].primaryColor}`
+            borderTop: `1px solid ${flavorColors?.primary}`,
+            borderLeft: `1px solid ${flavorColors?.primary}`,
+            borderBottom: `4px solid ${flavorColors?.primary}`,
+            borderRight: `4px solid ${flavorColors?.primary}`
           }
         }}
       >
@@ -536,7 +719,7 @@ export default function FormComponent({ selectedFlavor }: FormComponentProps) {
           <IconButton 
             onClick={handleCloseModal}
             size="small"
-            sx={{ color: flavorConfigs[selectedFlavor].primaryColor }}
+            sx={{ color: flavorColors?.primary }}
           >
             <CloseIcon />
           </IconButton>
@@ -557,7 +740,7 @@ export default function FormComponent({ selectedFlavor }: FormComponentProps) {
               '& .MuiOutlinedInput-root': { 
                 borderRadius: 3,
                 '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
-                  borderColor: flavorConfigs[selectedFlavor].primaryColor
+                  borderColor: flavorColors?.primary
                 }
               }
             }}
@@ -570,12 +753,12 @@ export default function FormComponent({ selectedFlavor }: FormComponentProps) {
             variant="outlined"
             sx={{ 
               borderRadius: 3,
-              borderColor: flavorConfigs[selectedFlavor].primaryColor,
-              color: flavorConfigs[selectedFlavor].primaryColor,
+              borderColor: flavorColors?.primary,
+              color: flavorColors?.primary,
               textTransform: 'none',
               '&:hover': {
-                borderColor: flavorConfigs[selectedFlavor].buttonHoverColor,
-                backgroundColor: `${flavorConfigs[selectedFlavor].primaryColor}10`
+                borderColor: flavorColors?.button.primaryHover,
+                backgroundColor: `${flavorColors?.primary}10`
               }
             }}
           >
@@ -587,11 +770,11 @@ export default function FormComponent({ selectedFlavor }: FormComponentProps) {
             disabled={!customWorkerCount}
             sx={{
               borderRadius: 3,
-              backgroundColor: flavorConfigs[selectedFlavor].primaryColor,
+              backgroundColor: flavorColors?.primary,
               boxShadow: 'none',
               textTransform: 'none',
               '&:hover': {
-                backgroundColor: flavorConfigs[selectedFlavor].buttonHoverColor,
+                backgroundColor: flavorColors?.button.primaryHover,
                 boxShadow: 'none'
               },
               '&:disabled': {

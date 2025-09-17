@@ -1,7 +1,7 @@
 'use client';
 
 import { Box, Container, Typography, Breadcrumbs, Link } from "@mui/material";
-import { getCurrentFlavorConfig } from '../../../types/favorGlobal';
+import { getColorsByFlavor, getCurrentFlavor } from '@/utils/flavors/settings';
 import { useParams } from 'next/navigation';
 
 interface BlogPostDetail {
@@ -16,7 +16,8 @@ interface BlogPostDetail {
 }
 
 export default function BlogDetailPage() {
-  const flavorConfig = getCurrentFlavorConfig();
+  const selectedFlavor = getCurrentFlavor();
+  const flavorColors = getColorsByFlavor(selectedFlavor);
   const params = useParams();
   const blogId = params.id as string;
 
@@ -204,7 +205,7 @@ export default function BlogDetailPage() {
             <Typography
               variant="body2"
               sx={{
-                color: flavorConfig.primaryColor,
+                color: flavorColors?.primary,
                 fontSize: { xs: '0.75rem', md: '0.9rem' },
                 fontWeight: 'bold',
                 textTransform: 'uppercase',

@@ -4,14 +4,16 @@ import { Menu as MenuIcon } from '@mui/icons-material';
 import Image from 'next/image';
 import Link from 'next/link';
 import { useState, useEffect } from 'react';
-import { getCurrentFlavorConfig } from '../types/favorGlobal';
+import { getColorsByFlavor, getLogoByFlavor, getCurrentFlavor } from '@/utils/flavors/settings';
 import { routes } from '../routes';
 
 export default function Header() {
     const [mobileOpen, setMobileOpen] = useState(false);
     const [mounted, setMounted] = useState(false);
     
-    const flavorConfig = getCurrentFlavorConfig();
+    const selectedFlavor = getCurrentFlavor();
+    const flavorColors = getColorsByFlavor(selectedFlavor);
+    const logo = getLogoByFlavor(selectedFlavor);
 
     useEffect(() => {
         setMounted(true);
@@ -37,7 +39,7 @@ export default function Header() {
                                         color: 'text.primary',
                                         cursor: 'pointer',
                                         '&:hover': {
-                                            color: flavorConfig.primaryColor
+                                            color: flavorColors?.primary
                                         }
                                     }
                                 }}
@@ -70,8 +72,8 @@ export default function Header() {
                             height: '40px'
                         }}>
                             <Image
-                                src="/YAKKA.webp"
-                                alt="YAKKA Logo"
+                                src={logo?.main || "/YAKKA.webp"}
+                                alt={logo?.alt || "YAKKA Logo"}
                                 width={150}
                                 height={40}
                                 style={{ 
@@ -95,7 +97,7 @@ export default function Header() {
                                         fontSize: '1.1rem',
                                         fontWeight: 500,
                                         '&:hover': {
-                                            color: flavorConfig.primaryColor
+                                            color: flavorColors?.primary
                                         }
                                     }}
                                 >

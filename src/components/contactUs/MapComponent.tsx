@@ -1,15 +1,19 @@
 'use client';
 
 import React, { useEffect, useRef } from 'react';
-import { CURRENT_FLAVOR, getCurrentFlavorConfig } from '@/types/favorGlobal';
-import { flavorTexts } from '@/types/flavor';
+import { getColorsByFlavor, getContentByFlavor } from '@/utils/flavors/settings';
+import { Flavor } from '@/utils/flavors/settings/model_flavor';
 
-export default function MapComponent() {
+interface MapComponentProps {
+  selectedFlavor: Flavor;
+}
+
+export default function MapComponent({ selectedFlavor }: MapComponentProps) {
   const mapRef = useRef<HTMLDivElement>(null);
   const mapInstance = useRef<any>(null);
   
-  const colors = getCurrentFlavorConfig();
-  const texts = flavorTexts[CURRENT_FLAVOR];
+  const colors = getColorsByFlavor(selectedFlavor);
+  const content = getContentByFlavor(selectedFlavor);
 
   useEffect(() => {
     if (typeof window !== 'undefined' && mapRef.current && !mapInstance.current) {
@@ -21,7 +25,7 @@ export default function MapComponent() {
           if (!mapRef.current || mapInstance.current) return;
           
           // Crear el mapa de forma simple
-          mapInstance.current = L.map(mapRef.current).setView(texts.mapCoordinates, 13);
+          mapInstance.current = L.map(mapRef.current).setView([-33.8688, 151.2093], 13);
 
           // Agregar capa de tiles
           L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
@@ -29,8 +33,8 @@ export default function MapComponent() {
           }).addTo(mapInstance.current);
 
           // Agregar marcador
-          L.marker(texts.mapCoordinates).addTo(mapInstance.current)
-              .bindPopup(texts.mapPopupText)
+          L.marker([-33.8688, 151.2093]).addTo(mapInstance.current)
+              .bindPopup('Yakka Sport - Sydney Office')
               .openPopup();
         }, 100);
       });
