@@ -275,7 +275,7 @@ export default function BlogOverview() {
 
                     <Typography
                       component="a"
-                      href={post.readMoreLink}
+                      href={`/blog/${post.id}`}
                       sx={{
                         color: flavorConfig.primaryColor,
                         textDecoration: 'none',
@@ -358,11 +358,14 @@ export default function BlogOverview() {
                   {latestPosts.map((post) => (
                     <Box
                       key={post.id}
+                      component="a"
+                      href={`/blog/${post.id}`}
                       sx={{
                         display: 'flex',
                         gap: 2,
                         alignItems: 'flex-start',
                         cursor: 'pointer',
+                        textDecoration: 'none',
                         '&:hover': {
                           opacity: 0.8
                         }
