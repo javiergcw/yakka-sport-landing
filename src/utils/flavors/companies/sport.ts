@@ -4,7 +4,8 @@ import { SportTheme } from '../settings/model_flavor';
 // Configuración específica para el flavor SPORT
 export const sportTheme: SportTheme = {
   flavor: Flavor.SPORT,
-  
+  id: 1,
+
   logo: {
     main: '/YAKKA.webp',
     icon: '/assets-sport/icon-sport.svg',

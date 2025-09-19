@@ -134,6 +134,7 @@ export interface FlavorBorderRadius {
 
 // Interfaz principal que debe implementar cada flavor
 export interface FlavorTheme {
+  id: number;
   flavor: Flavor;
   logo: FlavorLogo;
   colors: FlavorColors;

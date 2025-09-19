@@ -4,7 +4,7 @@ import { LabourTheme } from '../settings/model_flavor';
 // Configuración específica para el flavor LABOUR
 export const labourTheme: LabourTheme = {
   flavor: Flavor.LABOUR,
-  
+  id: 2,
   logo: {
     main: '/logo-labour.svg',
     icon: '/icon-labour.svg',

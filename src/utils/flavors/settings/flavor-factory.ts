@@ -1,5 +1,4 @@
-import { Flavor } from '@/types/flavor';
-import { FlavorTheme, AnyFlavorTheme } from './model_flavor';
+import { Flavor, FlavorTheme, AnyFlavorTheme } from './model_flavor';
 
 // Factory para crear funciones helper automáticamente
 export class FlavorFactory {
