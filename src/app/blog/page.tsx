@@ -3,6 +3,10 @@ import { getCurrentFlavor } from '@/utils/flavors/settings';
 
 export default function BlogPage() {
   const selectedFlavor = getCurrentFlavor();
-
-  return <BlogOverview selectedFlavor={selectedFlavor} />;
+  
+  return (
+    <BlogOverview 
+      selectedFlavor={selectedFlavor} 
+    />
+  );
 }

@@ -11,11 +11,17 @@ import {
   CardContent,
   TextField,
   Button,
-  Grid
+  Grid,
+  Alert,
+  Snackbar,
+  CircularProgress
 } from '@mui/material';
 import { Facebook, Twitter, LinkedIn } from '@mui/icons-material';
 import { getColorsByFlavor, getContentByFlavor } from '@/utils/flavors/settings';
-import { Flavor } from '@/utils/flavors/settings/model_flavor';
+import { Flavor, FLAVOR_IDS } from '@/utils/flavors/settings/model_flavor';
+import { getCurrentFlavor } from '@/utils/flavors/current-flavor';
+import { ContactUseCase } from '@/core/use-case/contact/contact_use_case';
+import { DtoFromContactUsCreateSend } from '@/core/dto/contactUs/send/dto_from_contact_us_create_send';
 
 interface ContactUsProps {
   selectedFlavor: Flavor;
@@ -27,6 +33,13 @@ export default function ContactUs({ selectedFlavor }: ContactUsProps) {
   
   const colors = getColorsByFlavor(selectedFlavor);
   const content = getContentByFlavor(selectedFlavor);
+  
+  // Obtener el flavor_id globalmente
+  const currentFlavor = getCurrentFlavor();
+  const flavorId = FLAVOR_IDS[currentFlavor];
+  
+  // Instancia del use case
+  const contactUseCase = new ContactUseCase();
 
 
   const [formData, setFormData] = useState({
@@ -36,6 +49,16 @@ export default function ContactUs({ selectedFlavor }: ContactUsProps) {
     message: ''
   });
 
+  const [isLoading, setIsLoading] = useState(false);
+  const [showSuccess, setShowSuccess] = useState(false);
+  const [showError, setShowError] = useState(false);
+  const [errorMessage, setErrorMessage] = useState('');
+  const [isClient, setIsClient] = useState(false);
+
+  useEffect(() => {
+    setIsClient(true);
+  }, []);
+
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
     setFormData(prev => ({
@@ -44,10 +67,39 @@ export default function ContactUs({ selectedFlavor }: ContactUsProps) {
     }));
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    // Aquí iría la lógica para enviar el formulario
-    console.log('Form submitted:', formData);
+    setIsLoading(true);
+    setShowError(false);
+    setShowSuccess(false);
+
+    try {
+      const contactData: DtoFromContactUsCreateSend = {
+        name: formData.name,
+        email: formData.email,
+        subject: formData.subject,
+        message: formData.message,
+        flavor: flavorId
+      };
+
+      await contactUseCase.createContact(contactData);
+      
+      // Limpiar el formulario
+      setFormData({
+        name: '',
+        email: '',
+        subject: '',
+        message: ''
+      });
+      
+      setShowSuccess(true);
+    } catch (error) {
+      console.error('Error creating contact:', error);
+      setErrorMessage(error instanceof Error ? error.message : 'An error occurred');
+      setShowError(true);
+    } finally {
+      setIsLoading(false);
+    }
   };
 
 
@@ -290,7 +342,7 @@ export default function ContactUs({ selectedFlavor }: ContactUsProps) {
             <div
               style={{
                 width: '100%',
-                height: window.innerWidth < 600 ? '250px' : '400px',
+                height: isClient && window.innerWidth < 600 ? '250px' : '400px',
                 borderRadius: '0px',
                 border: 'none',
                 overflow: 'hidden',
@@ -423,6 +475,7 @@ export default function ContactUs({ selectedFlavor }: ContactUsProps) {
                     variant="contained"
                     size="large"
                     fullWidth
+                    disabled={isLoading}
                     sx={{
                       py: { xs: 1.5, sm: 2 },
                       fontSize: { xs: '1rem', sm: '1.1rem' },
@@ -438,15 +491,57 @@ export default function ContactUs({ selectedFlavor }: ContactUsProps) {
                         transform: 'translateY(-2px)',
                         boxShadow: '0 4px 8px rgba(0,0,0,0.1)',
                       },
+                      '&:disabled': {
+                        backgroundColor: '#ccc',
+                        color: '#666',
+                      },
                     }}
                   >
-                    Send Message
+                    {isLoading ? (
+                      <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                        <CircularProgress size={20} color="inherit" />
+                        Sending...
+                      </Box>
+                    ) : (
+                      'Send Message'
+                    )}
                   </Button>
                 </Grid>
               </Grid>
             </Box>
           </Box>
         </Box>
+
+        {/* Success/Error Notifications */}
+        <Snackbar
+          open={showSuccess}
+          autoHideDuration={6000}
+          onClose={() => setShowSuccess(false)}
+          anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
+        >
+          <Alert 
+            onClose={() => setShowSuccess(false)} 
+            severity="success" 
+            sx={{ width: '100%' }}
+          >
+            Message sent successfully!
+          </Alert>
+        </Snackbar>
+
+        <Snackbar
+          open={showError}
+          autoHideDuration={6000}
+          onClose={() => setShowError(false)}
+          anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
+        >
+          <Alert 
+            onClose={() => setShowError(false)} 
+            severity="error" 
+            sx={{ width: '100%' }}
+          >
+            {errorMessage}
+          </Alert>
+        </Snackbar>
       </Container>
     </Box>
   );

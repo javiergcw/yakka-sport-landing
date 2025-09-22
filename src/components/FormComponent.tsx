@@ -13,12 +13,18 @@ import {
   DialogTitle,
   DialogContent,
   DialogActions,
-  IconButton
+  IconButton,
+  CircularProgress,
+  Alert,
+  Snackbar
 } from "@mui/material";
 import { Close as CloseIcon } from '@mui/icons-material';
 import React, { useState } from "react";
-import { Flavor } from "@/utils/flavors/settings/model_flavor";
+import { Flavor, FLAVOR_IDS } from "@/utils/flavors/settings/model_flavor";
 import { getColorsByFlavor } from "@/utils/flavors/settings";
+import { getCurrentFlavor } from "@/utils/flavors/current-flavor";
+import { RegisterUseCase } from "@/core/use-case/register/register_use_case";
+import { DtoSendRegisterCreate } from "@/core/dto/register/send/dto_send_register_create";
 
 interface FormData {
   name: string;
@@ -40,6 +46,9 @@ export default function FormComponent({ selectedFlavor }: FormComponentProps) {
   const flavorColors = getColorsByFlavor(selectedFlavor);
   const [openModal, setOpenModal] = useState(false);
   const [customWorkerCount, setCustomWorkerCount] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [success, setSuccess] = useState<string | null>(null);
   const [formData, setFormData] = useState<FormData>({
     name: '',
     email: '',
@@ -50,6 +59,10 @@ export default function FormComponent({ selectedFlavor }: FormComponentProps) {
     otherRole: '',
     workerCount: ''
   });
+
+  // Obtener el flavor_id globalmente
+  const currentFlavor = getCurrentFlavor();
+  const flavorId = FLAVOR_IDS[currentFlavor];
 
   const getSteps = () => {
     if (formData.role === 'builder') {
@@ -103,7 +116,10 @@ export default function FormComponent({ selectedFlavor }: FormComponentProps) {
     setCustomWorkerCount('');
   };
 
-  const handleNext = () => {
+  const handleNext = (e?: React.FormEvent) => {
+    if (e) {
+      e.preventDefault();
+    }
     if (currentStep < steps.length - 1) {
       setCurrentStep(currentStep + 1);
     }
@@ -115,10 +131,52 @@ export default function FormComponent({ selectedFlavor }: FormComponentProps) {
     }
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    console.log('Form data:', formData);
-    // Aquí puedes agregar la lógica para enviar el formulario
+    setIsLoading(true);
+    setError(null);
+    setSuccess(null);
+
+    try {
+      // Crear datos unificados para el registro
+      const registerData: DtoSendRegisterCreate = {
+        role: formData.role,
+        name: formData.name,
+        email: formData.email,
+        phone: formData.phone,
+        flavor: flavorId,
+        profession: formData.role === 'employee' 
+          ? (formData.profession === 'other' ? formData.otherRole : formData.profession)
+          : null,
+        workers: formData.role === 'builder' 
+          ? formData.workerCount 
+          : ''
+      };
+
+      const registerUseCase = new RegisterUseCase();
+      const result = await registerUseCase.createRegister(registerData);
+      
+      setSuccess(`${formData.role === 'builder' ? 'Builder' : 'Employee'} registered successfully!`);
+      console.log('Registro creado:', result);
+      
+      // Resetear formulario y volver al paso inicial
+      setCurrentStep(0);
+      setFormData({
+        name: '',
+        email: '',
+        phone: '',
+        role: '',
+        workerNeeded: '',
+        profession: '',
+        otherRole: '',
+        workerCount: ''
+      });
+    } catch (error) {
+      console.error('Error al enviar formulario:', error);
+      setError(error instanceof Error ? error.message : 'Unknown error processing the form');
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
@@ -625,6 +683,7 @@ export default function FormComponent({ selectedFlavor }: FormComponentProps) {
                 type="submit"
                 variant="contained"
                 size="large"
+                disabled={isLoading}
                 sx={{ 
                   height: '48px',
                   px: 4,
@@ -641,13 +700,25 @@ export default function FormComponent({ selectedFlavor }: FormComponentProps) {
                   },
                   '&:active': {
                     backgroundColor: flavorColors?.button.primaryHover
+                  },
+                  '&:disabled': {
+                    backgroundColor: '#d1d1d6',
+                    color: '#86868b'
                   }
                 }}
               >
-                Submit
+                {isLoading ? (
+                  <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                    <CircularProgress size={20} color="inherit" />
+                    Processing...
+                  </Box>
+                ) : (
+                  'Submit'
+                )}
               </Button>
             ) : (
               <Button
+                type="button"
                 onClick={handleNext}
                 variant="contained"
                 size="large"
@@ -786,6 +857,37 @@ export default function FormComponent({ selectedFlavor }: FormComponentProps) {
           </Button>
         </DialogActions>
       </Dialog>
+
+      {/* Notificaciones de éxito y error */}
+      <Snackbar
+        open={!!success}
+        autoHideDuration={6000}
+        onClose={() => setSuccess(null)}
+        anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
+      >
+        <Alert 
+          onClose={() => setSuccess(null)} 
+          severity="success" 
+          sx={{ width: '100%' }}
+        >
+          {success}
+        </Alert>
+      </Snackbar>
+
+      <Snackbar
+        open={!!error}
+        autoHideDuration={6000}
+        onClose={() => setError(null)}
+        anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
+      >
+        <Alert 
+          onClose={() => setError(null)} 
+          severity="error" 
+          sx={{ width: '100%' }}
+        >
+          {error}
+        </Alert>
+      </Snackbar>
     </>
   );
 }
