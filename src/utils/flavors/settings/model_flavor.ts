@@ -2,10 +2,14 @@
 export enum Flavor {
   SPORT = 'sport',
   LABOUR = 'labour',
-  HOSPITALITY = 'hospitality'
 }
 
-// Interfaces genéricas para todos los flavors
+
+export const FLAVOR_IDS = {
+  [Flavor.SPORT]: 1,
+  [Flavor.LABOUR]: 2,
+} as const;
+
 
 export interface FlavorLogo {
   main: string;        // Logo principal
@@ -155,9 +159,6 @@ export interface LabourTheme extends FlavorTheme {
   flavor: Flavor.LABOUR;
 }
 
-export interface HospitalityTheme extends FlavorTheme {
-  flavor: Flavor.HOSPITALITY;
-}
 
 // Union type para todos los temas posibles
-export type AnyFlavorTheme = SportTheme | LabourTheme | HospitalityTheme;
+export type AnyFlavorTheme = SportTheme | LabourTheme;
