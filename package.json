@@ -5,19 +5,37 @@
   "scripts": {
     "dev": "next dev --turbopack",
     "build": "next build --turbopack",
-    "start": "next start"
+    "start": "next start",
+    "set-flavor": "node scripts/set-flavor.js",
+    "build-flavor": "node scripts/build-flavor.js",
+    "dev:sport": "node scripts/build-flavor.js sport --dev",
+    "dev:labour": "node scripts/build-flavor.js labour --dev",
+    "build:sport": "node scripts/build-flavor.js sport --build",
+    "build:labour": "node scripts/build-flavor.js labour --build",
+    "start:sport": "node scripts/build-flavor.js sport --start",
+    "start:labour": "node scripts/build-flavor.js labour --start",
+    "flavor:sport": "node scripts/set-flavor.js sport",
+    "flavor:labour": "node scripts/set-flavor.js labour",
+    "flavor:info": "node scripts/flavor-info.js"
   },
   "dependencies": {
+    "@emotion/react": "^11.14.0",
+    "@emotion/styled": "^11.14.1",
+    "@mui/icons-material": "^7.3.2",
+    "@mui/material": "^7.3.2",
+    "@types/leaflet": "^1.9.20",
+    "leaflet": "^1.9.4",
+    "next": "15.5.2",
     "react": "19.1.0",
     "react-dom": "19.1.0",
-    "next": "15.5.2"
+    "swiper": "^12.0.1"
   },
   "devDependencies": {
-    "typescript": "^5",
+    "@tailwindcss/postcss": "^4",
     "@types/node": "^20",
     "@types/react": "^19",
     "@types/react-dom": "^19",
-    "@tailwindcss/postcss": "^4",
-    "tailwindcss": "^4"
+    "tailwindcss": "^4",
+    "typescript": "^5"
   }
 }
