@@ -3,9 +3,32 @@
 import { Box, Container, Typography } from "@mui/material";
 import { Language as LanguageIcon, AttachMoney as MoneyIcon } from '@mui/icons-material';
 import { getCurrentFlavorConfig } from '@/utils/flavors/global-config';
+import { FooterUseCase } from '@/core/use-case/footer/footer_use_case';
+import { FooterItem } from '@/core/dto/footer/dto_receive_footer_get_all';
+import { useEffect, useState } from 'react';
 
 export default function Footer() {
     const flavorConfig = getCurrentFlavorConfig();
+    const [footerData, setFooterData] = useState<FooterItem | null>(null);
+    const [loading, setLoading] = useState(true);
+
+    useEffect(() => {
+        const fetchFooterData = async () => {
+            try {
+                const footerUseCase = new FooterUseCase();
+                const response = await footerUseCase.getFooter();
+                if (response.data && response.data.length > 0) {
+                    setFooterData(response.data[0]);
+                }
+            } catch (error) {
+                console.error('Error fetching footer data:', error);
+            } finally {
+                setLoading(false);
+            }
+        };
+
+        fetchFooterData();
+    }, []);
 
     if (!flavorConfig) return null;
 
@@ -42,7 +65,7 @@ export default function Footer() {
                             order: { xs: 1, md: 2 }
                         }}
                     >
-                        © 2024 YAKKA Sport. All Rights Reserved.
+                        {loading ? 'Cargando...' : (footerData?.name_footer || 'YAKKA')}
                     </Typography>
 
                     {/* Idioma y Moneda */}

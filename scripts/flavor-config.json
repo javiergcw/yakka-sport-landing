@@ -1,0 +1,37 @@
+{
+  "flavors": {
+    "sport": {
+      "name": "Sport",
+      "description": "Plataforma Deportiva y Fitness",
+      "port": 3000,
+      "buildDir": ".next-sport",
+      "env": {
+        "NEXT_PUBLIC_FLAVOR": "sport",
+        "NEXT_PUBLIC_APP_NAME": "Yakka Sport",
+        "NEXT_PUBLIC_APP_DESCRIPTION": "Plataforma Deportiva y Fitness"
+      }
+    },
+    "labour": {
+      "name": "Labour",
+      "description": "Plataforma Industrial y Manufacturera",
+      "port": 3001,
+      "buildDir": ".next-labour",
+      "env": {
+        "NEXT_PUBLIC_FLAVOR": "labour",
+        "NEXT_PUBLIC_APP_NAME": "Yakka Labour",
+        "NEXT_PUBLIC_APP_DESCRIPTION": "Plataforma Industrial y Manufacturera"
+      }
+    }
+  },
+  "build": {
+    "defaultFlavor": "sport",
+    "outputDir": "dist",
+    "cleanBeforeBuild": true,
+    "generateManifest": true
+  },
+  "dev": {
+    "hotReload": true,
+    "turbopack": true,
+    "showBuildInfo": true
+  }
+}

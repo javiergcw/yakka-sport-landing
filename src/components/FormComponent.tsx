@@ -25,6 +25,10 @@ import { getColorsByFlavor } from "@/utils/flavors/settings";
 import { getCurrentFlavor } from "@/utils/flavors/current-flavor";
 import { RegisterUseCase } from "@/core/use-case/register/register_use_case";
 import { DtoSendRegisterCreate } from "@/core/dto/register/send/dto_send_register_create";
+import { SkillCategoryUseCase } from "@/core/use-case/skill_category/skill_category_use_case";
+import { SkillSubcategoryUseCase } from "@/core/use-case/skill_subcategory/skill_subcategory_use_case";
+import { SkillCategoryItem } from "@/core/dto/skill_category/dto_receive_skill_category_get_all";
+import { SkillSubcategoryItem } from "@/core/dto/skill_subcategory/dto_receive_skill_subcategory_get_all";
 
 interface FormData {
   name: string;
@@ -35,6 +39,8 @@ interface FormData {
   profession: string;
   otherRole: string;
   workerCount: string;
+  selectedCategory: string;
+  selectedSubcategory: string;
 }
 
 interface FormComponentProps {
@@ -57,12 +63,50 @@ export default function FormComponent({ selectedFlavor }: FormComponentProps) {
     workerNeeded: '',
     profession: '',
     otherRole: '',
-    workerCount: ''
+    workerCount: '',
+    selectedCategory: '',
+    selectedSubcategory: ''
   });
+
+  // Estados para categorías y subcategorías
+  const [categories, setCategories] = useState<SkillCategoryItem[]>([]);
+  const [subcategories, setSubcategories] = useState<SkillSubcategoryItem[]>([]);
+  const [loadingCategories, setLoadingCategories] = useState(false);
+  const [loadingSubcategories, setLoadingSubcategories] = useState(false);
 
   // Obtener el flavor_id globalmente
   const currentFlavor = getCurrentFlavor();
   const flavorId = FLAVOR_IDS[currentFlavor];
+
+  // Función para cargar categorías
+  const loadCategories = async () => {
+    try {
+      setLoadingCategories(true);
+      const skillCategoryUseCase = new SkillCategoryUseCase();
+      const result = await skillCategoryUseCase.getAllSkillCategories(1, 25);
+      setCategories(result.data);
+    } catch (error) {
+      console.error('Error al cargar categorías:', error);
+      setError('Error al cargar las categorías');
+    } finally {
+      setLoadingCategories(false);
+    }
+  };
+
+  // Función para cargar subcategorías
+  const loadSubcategories = async (categoryId: number) => {
+    try {
+      setLoadingSubcategories(true);
+      const skillSubcategoryUseCase = new SkillSubcategoryUseCase();
+      const result = await skillSubcategoryUseCase.getAllSkillSubcategories(categoryId, 25);
+      setSubcategories(result.data);
+    } catch (error) {
+      console.error('Error al cargar subcategorías:', error);
+      setError('Error al cargar las subcategorías');
+    } finally {
+      setLoadingSubcategories(false);
+    }
+  };
 
   const getSteps = () => {
     if (formData.role === 'builder') {
@@ -75,7 +119,8 @@ export default function FormComponent({ selectedFlavor }: FormComponentProps) {
       return [
         { title: 'What is your role?', description: 'Choose your role' },
         { title: 'Personal Information', description: 'Provide your basic contact details' },
-        { title: 'What is your profession?', description: 'Select your profession' }
+        { title: 'What is your profession?', description: 'Select your profession category' },
+        { title: 'Select your specific profession', description: 'Choose your specific profession' }
       ];
     } else {
       return [
@@ -93,6 +138,22 @@ export default function FormComponent({ selectedFlavor }: FormComponentProps) {
       ...prev,
       [field]: value
     }));
+
+    // Cargar categorías cuando se selecciona el rol de empleado
+    if (field === 'role' && value === 'employee' && categories.length === 0) {
+      loadCategories();
+    }
+
+    // Cargar subcategorías cuando se selecciona una categoría
+    if (field === 'selectedCategory' && value) {
+      const categoryId = parseInt(value);
+      loadSubcategories(categoryId);
+      // Limpiar subcategoría seleccionada
+      setFormData(prev => ({
+        ...prev,
+        selectedSubcategory: ''
+      }));
+    }
   };
 
   const handleMoreClick = () => {
@@ -120,6 +181,55 @@ export default function FormComponent({ selectedFlavor }: FormComponentProps) {
     if (e) {
       e.preventDefault();
     }
+
+    // Validaciones específicas para cada paso
+    if (currentStep === 0) {
+      // Paso 1: Validar que se seleccione un rol
+      if (!formData.role) {
+        setError('Please select your role');
+        return;
+      }
+    } else if (currentStep === 1) {
+      // Paso 2: Validar información personal
+      if (!formData.name.trim()) {
+        setError('Please enter your name');
+        return;
+      }
+      if (!formData.email.trim()) {
+        setError('Please enter your email');
+        return;
+      }
+      // Validar formato de email
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      if (!emailRegex.test(formData.email)) {
+        setError('Please enter a valid email address');
+        return;
+      }
+      if (!formData.phone.trim()) {
+        setError('Please enter your phone number');
+        return;
+      }
+    } else if (currentStep === 2) {
+      // Paso 3: Validar según el rol
+      if (formData.role === 'builder' && !formData.workerCount) {
+        setError('Please select the number of workers needed');
+        return;
+      }
+      if (formData.role === 'employee' && !formData.selectedCategory) {
+        setError('Please select your profession category');
+        return;
+      }
+    } else if (currentStep === 3) {
+      // Paso 4: Validar subcategoría para empleados
+      if (formData.role === 'employee' && !formData.selectedSubcategory) {
+        setError('Please select your specific profession');
+        return;
+      }
+    }
+
+    // Limpiar errores si todo está bien
+    setError(null);
+
     if (currentStep < steps.length - 1) {
       setCurrentStep(currentStep + 1);
     }
@@ -137,6 +247,31 @@ export default function FormComponent({ selectedFlavor }: FormComponentProps) {
     setError(null);
     setSuccess(null);
 
+    // Validar campos requeridos antes de enviar
+    if (!formData.role) {
+      setError('Please select your role');
+      setIsLoading(false);
+      return;
+    }
+
+    if (!formData.name || !formData.email || !formData.phone) {
+      setError('Please fill in all personal information fields');
+      setIsLoading(false);
+      return;
+    }
+
+    if (formData.role === 'builder' && !formData.workerCount) {
+      setError('Please select the number of workers needed');
+      setIsLoading(false);
+      return;
+    }
+
+    if (formData.role === 'employee' && (!formData.selectedCategory || !formData.selectedSubcategory)) {
+      setError('Please select your profession category and specific profession');
+      setIsLoading(false);
+      return;
+    }
+
     try {
       // Crear datos unificados para el registro
       const registerData: DtoSendRegisterCreate = {
@@ -146,7 +281,7 @@ export default function FormComponent({ selectedFlavor }: FormComponentProps) {
         phone: formData.phone,
         flavor: flavorId,
         profession: formData.role === 'employee' 
-          ? (formData.profession === 'other' ? formData.otherRole : formData.profession)
+          ? `${categories.find(cat => cat.id.toString() === formData.selectedCategory)?.name || formData.selectedCategory} - ${formData.selectedSubcategory}`
           : null,
         workers: formData.role === 'builder' 
           ? formData.workerCount 
@@ -169,8 +304,12 @@ export default function FormComponent({ selectedFlavor }: FormComponentProps) {
         workerNeeded: '',
         profession: '',
         otherRole: '',
-        workerCount: ''
+        workerCount: '',
+        selectedCategory: '',
+        selectedSubcategory: ''
       });
+      setCategories([]);
+      setSubcategories([]);
     } catch (error) {
       console.error('Error al enviar formulario:', error);
       setError(error instanceof Error ? error.message : 'Unknown error processing the form');
@@ -574,69 +713,78 @@ export default function FormComponent({ selectedFlavor }: FormComponentProps) {
                 </Box>
               )}
 
-              {/* Campo condicional para Employee */}
+              {/* Campo condicional para Employee - Categorías */}
               {formData.role === 'employee' && (
                 <Box>
-                  <FormControl fullWidth sx={{ mb: 2 }}>
-                    <InputLabel>What is your profession?</InputLabel>
-                    <Select
-                      value={formData.profession}
-                      onChange={(e) => handleInputChange('profession', e.target.value)}
-                      label="What is your profession?"
-                      MenuProps={{
-                        disableScrollLock: true
-                      }}
-                      sx={{ 
-                        '& .MuiOutlinedInput-notchedOutline': { 
-                          borderRadius: 3 
-                        },
-                        '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
-                          borderColor: flavorColors?.primary
-                        }
-                      }}
-                    >
-                      <MenuItem value="carpenter">Carpenter</MenuItem>
-                      <MenuItem value="electrician">Electrician</MenuItem>
-                      <MenuItem value="plumber">Plumber</MenuItem>
-                      <MenuItem value="painter">Painter</MenuItem>
-                      <MenuItem value="mason">Mason</MenuItem>
-                      <MenuItem value="roofer">Roofer</MenuItem>
-                      <MenuItem value="welder">Welder</MenuItem>
-                      <MenuItem value="concrete-worker">Concrete Worker</MenuItem>
-                      <MenuItem value="drywall-installer">Drywall Installer</MenuItem>
-                      <MenuItem value="flooring-installer">Flooring Installer</MenuItem>
-                      <MenuItem value="hvac-technician">HVAC Technician</MenuItem>
-                      <MenuItem value="landscaper">Landscaper</MenuItem>
-                      <MenuItem value="heavy-equipment-operator">Heavy Equipment Operator</MenuItem>
-                      <MenuItem value="construction-foreman">Construction Foreman</MenuItem>
-                      <MenuItem value="safety-inspector">Safety Inspector</MenuItem>
-                      <MenuItem value="architect">Architect</MenuItem>
-                      <MenuItem value="civil-engineer">Civil Engineer</MenuItem>
-                      <MenuItem value="project-manager">Project Manager</MenuItem>
-                      <MenuItem value="other">Other</MenuItem>
-                    </Select>
-                  </FormControl>
-                  
-                  {/* Campo Other para Employee */}
-                  {formData.profession === 'other' && (
-                    <TextField
-                      fullWidth
-                      label="Please specify your profession"
-                      value={formData.otherRole}
-                      onChange={(e) => handleInputChange('otherRole', e.target.value)}
-                      variant="outlined"
-                      placeholder="Enter your specific profession..."
-                      sx={{ 
-                    '& .MuiOutlinedInput-root': { 
-                      borderRadius: 3,
+                  {loadingCategories ? (
+                    <Box sx={{ display: 'flex', justifyContent: 'center', py: 4 }}>
+                      <CircularProgress />
+                    </Box>
+                  ) : (
+                    <FormControl fullWidth sx={{ mb: 2 }}>
+                      <InputLabel>Select your profession category</InputLabel>
+                      <Select
+                        value={formData.selectedCategory}
+                        onChange={(e) => handleInputChange('selectedCategory', e.target.value)}
+                        label="Select your profession category"
+                        MenuProps={{
+                          disableScrollLock: true
+                        }}
+                        sx={{ 
+                          '& .MuiOutlinedInput-notchedOutline': { 
+                            borderRadius: 3 
+                          },
+                          '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
+                            borderColor: flavorColors?.primary
+                          }
+                        }}
+                      >
+                        {categories.map((category) => (
+                          <MenuItem key={category.id} value={category.id.toString()}>
+                            {category.name}
+                          </MenuItem>
+                        ))}
+                      </Select>
+                    </FormControl>
+                  )}
+                </Box>
+              )}
+            </Box>
+          )}
+
+          {/* Paso 4: Subcategorías para Employee */}
+          {currentStep === 3 && formData.role === 'employee' && (
+            <Box sx={{ display: 'flex', flexDirection: 'column', gap: 3 }}>
+              {loadingSubcategories ? (
+                <Box sx={{ display: 'flex', justifyContent: 'center', py: 4 }}>
+                  <CircularProgress />
+                </Box>
+              ) : (
+                <FormControl fullWidth sx={{ mb: 2 }}>
+                  <InputLabel>Select your specific profession</InputLabel>
+                  <Select
+                    value={formData.selectedSubcategory}
+                    onChange={(e) => handleInputChange('selectedSubcategory', e.target.value)}
+                    label="Select your specific profession"
+                    MenuProps={{
+                      disableScrollLock: true
+                    }}
+                    sx={{ 
+                      '& .MuiOutlinedInput-notchedOutline': { 
+                        borderRadius: 3 
+                      },
                       '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
                         borderColor: flavorColors?.primary
                       }
-                    }
-                  }}
-                    />
-                  )}
-                </Box>
+                    }}
+                  >
+                    {subcategories.map((subcategory, index) => (
+                      <MenuItem key={index} value={subcategory.name}>
+                        {subcategory.name}
+                      </MenuItem>
+                    ))}
+                  </Select>
+                </FormControl>
               )}
             </Box>
           )}
@@ -724,9 +872,10 @@ export default function FormComponent({ selectedFlavor }: FormComponentProps) {
                 size="large"
                 disabled={
                   (currentStep === 0 && !formData.role) ||
-                  (currentStep === 1 && (!formData.name || !formData.email || !formData.phone)) ||
+                  (currentStep === 1 && (!formData.name.trim() || !formData.email.trim() || !formData.phone.trim() || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email))) ||
                   (currentStep === 2 && formData.role === 'builder' && !formData.workerCount) ||
-                  (currentStep === 2 && formData.role === 'employee' && !formData.profession)
+                  (currentStep === 2 && formData.role === 'employee' && !formData.selectedCategory) ||
+                  (currentStep === 3 && formData.role === 'employee' && !formData.selectedSubcategory)
                 }
                 sx={{ 
                   height: '48px',
