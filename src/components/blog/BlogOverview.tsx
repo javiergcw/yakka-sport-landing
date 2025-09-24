@@ -55,7 +55,7 @@ export default function BlogOverview({ selectedFlavor }: BlogOverviewProps) {
           setTotalPages(result.data.pagination.totalPages);
         }
       } catch (error) {
-        console.error('Error cargando blog data:', error);
+        console.error('Error loading blog data:', error);
         setBlogData(null);
       } finally {
         setLoading(false);
@@ -69,11 +69,11 @@ export default function BlogOverview({ selectedFlavor }: BlogOverviewProps) {
         if (result.success && result.data) {
           setCategories(result.data.data);
         } else {
-          console.error('Error cargando categorías:', result.error);
+          console.error('Error loading categories:', result.error);
           setCategories([]);
         }
       } catch (error) {
-        console.error('Error cargando categorías:', error);
+        console.error('Error loading categories:', error);
         setCategories([]);
       } finally {
         setCategoriesLoading(false);
@@ -119,7 +119,7 @@ export default function BlogOverview({ selectedFlavor }: BlogOverviewProps) {
     return posts.filter(post => post.category.id === categoryId);
   };
 
-  const allBlogPosts: BlogPost[] = blogData?.success && blogData.data?.data 
+  const allBlogPosts: BlogPost[] = blogData?.success && blogData.data?.data && blogData.data.data.length > 0
     ? blogData.data.data.map((post: any) => ({
         id: post.id.toString(),
         title: post.title,
@@ -130,35 +130,15 @@ export default function BlogOverview({ selectedFlavor }: BlogOverviewProps) {
         image: post.image ? `https://cms.yakkasport.com.au/assets/${post.image}.jpg` : '/home/machine-2691439_1280.jpg',
         readMoreLink: `/blog/${post.id}`
       }))
-    : [
-        {
-          id: '1',
-          title: 'No posts available',
-          excerpt: 'Could not load blog posts at this time.',
-          category: 'ERROR',
-          categoryId: 0,
-          date: 'TODAY',
-          image: '/home/machine-2691439_1280.jpg',
-          readMoreLink: '#'
-        }
-      ];
+    : [];
 
   // Filtrar posts por categorías seleccionadas
   const blogPosts: BlogPost[] = selectedCategories.length > 0 
     ? allBlogPosts.filter(post => selectedCategories.includes(post.categoryId))
     : allBlogPosts;
 
-  // Las categorías ahora se cargan dinámicamente desde la API
-  const fallbackCategories: Category[] = [
-    { id: 0, name: 'Education' },
-    { id: 1, name: 'Interview' },
-    { id: 2, name: 'Learn' },
-    { id: 3, name: 'Skill' },
-    { id: 4, name: 'Speaking' },
-    { id: 5, name: 'Uncategorized' }
-  ];
-
-  const displayCategories = categories.length > 0 ? categories : fallbackCategories;
+  // Las categorías se cargan dinámicamente desde la API
+  const displayCategories = categories;
 
   // Función para manejar la selección de categorías (múltiple)
   const handleCategorySelect = (categoryId: number) => {
@@ -180,21 +160,14 @@ export default function BlogOverview({ selectedFlavor }: BlogOverviewProps) {
     setSelectedCategories([]); // Limpiar filtros al cambiar página
   };
 
-  const latestPosts: LatestPost[] = blogData?.success && blogData.data?.data 
+  const latestPosts: LatestPost[] = blogData?.success && blogData.data?.data && blogData.data.data.length > 0
     ? blogData.data.data.slice(0, 3).map((post: any) => ({
         id: post.id.toString(),
         title: post.title,
         date: formatDate(post.date_created),
         thumbnail: post.image ? `https://cms.yakkasport.com.au/assets/${post.image}.jpg` : '/home/machine-2691439_1280.jpg'
       }))
-    : [
-        {
-          id: '1',
-          title: 'No posts available',
-          date: 'TODAY',
-          thumbnail: '/home/machine-2691439_1280.jpg'
-        }
-      ];
+    : [];
 
   if (loading) {
     return (
@@ -425,45 +398,47 @@ export default function BlogOverview({ selectedFlavor }: BlogOverviewProps) {
                 Clear Filter ({selectedCategories.length})
               </Typography>
             )}
-            <Box sx={{ 
-              display: 'flex', 
-              flexDirection: 'row',
-              flexWrap: 'wrap',
-              gap: 1
-            }}>
-              {displayCategories.map((category) => (
-                <Typography
-                  key={category.id}
-                  variant="body2"
-                  onClick={() => handleCategorySelect(category.id)}
-                  sx={{
-                    color: selectedCategories.includes(category.id) ? '#ffffff' : '#000000',
-                    fontSize: '0.95rem',
-                    cursor: 'pointer',
-                    padding: '4px 8px',
-                    backgroundColor: selectedCategories.includes(category.id) 
-                      ? flavorColors?.primary 
-                      : '#f5f5f5',
-                    borderRadius: '4px',
-                    border: selectedCategories.includes(category.id) 
-                      ? `1px solid ${flavorColors?.primary}` 
-                      : '1px solid #e0e0e0',
-                    '&:hover': {
-                      color: selectedCategories.includes(category.id) ? '#ffffff' : flavorColors?.primary,
+            {displayCategories.length > 0 && (
+              <Box sx={{ 
+                display: 'flex', 
+                flexDirection: 'row',
+                flexWrap: 'wrap',
+                gap: 1
+              }}>
+                {displayCategories.map((category) => (
+                  <Typography
+                    key={category.id}
+                    variant="body2"
+                    onClick={() => handleCategorySelect(category.id)}
+                    sx={{
+                      color: selectedCategories.includes(category.id) ? '#ffffff' : '#000000',
+                      fontSize: '0.95rem',
+                      cursor: 'pointer',
+                      padding: '4px 8px',
                       backgroundColor: selectedCategories.includes(category.id) 
                         ? flavorColors?.primary 
-                        : flavorColors?.primary + '20'
-                    }
-                  }}
-                >
-                  {category.name}
-                </Typography>
-              ))}
-            </Box>
+                        : '#f5f5f5',
+                      borderRadius: '4px',
+                      border: selectedCategories.includes(category.id) 
+                        ? `1px solid ${flavorColors?.primary}` 
+                        : '1px solid #e0e0e0',
+                      '&:hover': {
+                        color: selectedCategories.includes(category.id) ? '#ffffff' : flavorColors?.primary,
+                        backgroundColor: selectedCategories.includes(category.id) 
+                          ? flavorColors?.primary 
+                          : flavorColors?.primary + '20'
+                      }
+                    }}
+                  >
+                    {category.name}
+                  </Typography>
+                ))}
+              </Box>
+            )}
           </Box>
 
           <Box sx={{ flex: 1 }}>
-            {selectedCategories.length > 0 && blogPosts.length === 0 ? (
+            {blogPosts.length === 0 ? (
               <Box sx={{ 
                 textAlign: 'center', 
                 py: 8,
@@ -477,22 +452,24 @@ export default function BlogOverview({ selectedFlavor }: BlogOverviewProps) {
                     fontSize: '1.1rem'
                   }}
                 >
-                  No posts found for this category
+                  {selectedCategories.length > 0 ? 'No posts found for this category' : 'No blogs available'}
                 </Typography>
-                <Typography
-                  variant="body2"
-                  onClick={handleClearFilter}
-                  sx={{
-                    color: flavorColors?.primary,
-                    cursor: 'pointer',
-                    textDecoration: 'underline',
-                    '&:hover': {
-                      opacity: 0.8
-                    }
-                  }}
-                >
-                  View all posts
-                </Typography>
+                {selectedCategories.length > 0 && (
+                  <Typography
+                    variant="body2"
+                    onClick={handleClearFilter}
+                    sx={{
+                      color: flavorColors?.primary,
+                      cursor: 'pointer',
+                      textDecoration: 'underline',
+                      '&:hover': {
+                        opacity: 0.8
+                      }
+                    }}
+                  >
+                    View all posts
+                  </Typography>
+                )}
               </Box>
             ) : (
               <Box sx={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
@@ -656,30 +633,32 @@ export default function BlogOverview({ selectedFlavor }: BlogOverviewProps) {
                     Clear Filter ({selectedCategories.length})
                   </Typography>
                 )}
-                <Box sx={{ 
-                  display: 'flex', 
-                  flexDirection: 'column',
-                  gap: 1
-                }}>
-                  {displayCategories.map((category) => (
-                    <Typography
-                      key={category.id}
-                      variant="body2"
-                      onClick={() => handleCategorySelect(category.id)}
-                      sx={{
-                        color: selectedCategories.includes(category.id) ? flavorColors?.primary : '#000000',
-                        fontSize: '0.95rem',
-                        cursor: 'pointer',
-                        fontWeight: selectedCategories.includes(category.id) ? 'bold' : 'normal',
-                        '&:hover': {
-                          color: flavorColors?.primary
-                        }
-                      }}
-                    >
-                      {category.name}
-                    </Typography>
-                  ))}
-                </Box>
+                {displayCategories.length > 0 && (
+                  <Box sx={{ 
+                    display: 'flex', 
+                    flexDirection: 'column',
+                    gap: 1
+                  }}>
+                    {displayCategories.map((category) => (
+                      <Typography
+                        key={category.id}
+                        variant="body2"
+                        onClick={() => handleCategorySelect(category.id)}
+                        sx={{
+                          color: selectedCategories.includes(category.id) ? flavorColors?.primary : '#000000',
+                          fontSize: '0.95rem',
+                          cursor: 'pointer',
+                          fontWeight: selectedCategories.includes(category.id) ? 'bold' : 'normal',
+                          '&:hover': {
+                            color: flavorColors?.primary
+                          }
+                        }}
+                      >
+                        {category.name}
+                      </Typography>
+                    ))}
+                  </Box>
+                )}
               </Box>
 
               <Box>
@@ -695,71 +674,73 @@ export default function BlogOverview({ selectedFlavor }: BlogOverviewProps) {
                 >
                   Latest Post
                 </Typography>
-                <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
-                  {latestPosts.map((post) => (
-                    <Box
-                      key={post.id}
-                      component="a"
-                      href={`/blog/${post.id}`}
-                      sx={{
-                        display: 'flex',
-                        gap: 2,
-                        alignItems: 'flex-start',
-                        cursor: 'pointer',
-                        textDecoration: 'none',
-                        '&:hover': {
-                          opacity: 0.8
-                        }
-                      }}
-                    >
+                {latestPosts.length > 0 && (
+                  <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+                    {latestPosts.map((post) => (
                       <Box
+                        key={post.id}
+                        component="a"
+                        href={`/blog/${post.id}`}
                         sx={{
-                          width: '60px',
-                          height: '60px',
-                          flexShrink: 0,
-                          borderRadius: 1,
-                          overflow: 'hidden'
+                          display: 'flex',
+                          gap: 2,
+                          alignItems: 'flex-start',
+                          cursor: 'pointer',
+                          textDecoration: 'none',
+                          '&:hover': {
+                            opacity: 0.8
+                          }
                         }}
                       >
-                        <img
-                          src={post.thumbnail}
-                          alt={post.title}
-                          style={{
-                            width: '100%',
-                            height: '100%',
-                            objectFit: 'cover'
+                        <Box
+                          sx={{
+                            width: '60px',
+                            height: '60px',
+                            flexShrink: 0,
+                            borderRadius: 1,
+                            overflow: 'hidden'
                           }}
-                        />
-                      </Box>
+                        >
+                          <img
+                            src={post.thumbnail}
+                            alt={post.title}
+                            style={{
+                              width: '100%',
+                              height: '100%',
+                              objectFit: 'cover'
+                            }}
+                          />
+                        </Box>
 
-                      <Box sx={{ flex: 1 }}>
-                        <Typography
-                          variant="body2"
-                          sx={{
-                            color: '#666666',
-                            fontSize: '0.75rem',
-                            textTransform: 'uppercase',
-                            letterSpacing: '0.5px',
-                            mb: 0.5
-                          }}
-                        >
-                          {post.date}
-                        </Typography>
-                        <Typography
-                          variant="body2"
-                          sx={{
-                            color: '#000000',
-                            fontSize: '0.9rem',
-                            fontWeight: 400,
-                            lineHeight: 1.3
-                          }}
-                        >
-                          {post.title}
-                        </Typography>
+                        <Box sx={{ flex: 1 }}>
+                          <Typography
+                            variant="body2"
+                            sx={{
+                              color: '#666666',
+                              fontSize: '0.75rem',
+                              textTransform: 'uppercase',
+                              letterSpacing: '0.5px',
+                              mb: 0.5
+                            }}
+                          >
+                            {post.date}
+                          </Typography>
+                          <Typography
+                            variant="body2"
+                            sx={{
+                              color: '#000000',
+                              fontSize: '0.9rem',
+                              fontWeight: 400,
+                              lineHeight: 1.3
+                            }}
+                          >
+                            {post.title}
+                          </Typography>
+                        </Box>
                       </Box>
-                    </Box>
-                  ))}
-                </Box>
+                    ))}
+                  </Box>
+                )}
               </Box>
             </Box>
           </Box>
